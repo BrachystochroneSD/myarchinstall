@@ -2,47 +2,41 @@
 
 # location of this file : https://raw.githubusercontent.com/BrachystochroneSD/myarchinstall/master/myarchinstall.sh
 
-createPartitionTable () {
+makingGRUBGPTPartitionTable () {
     swapsize=$(grep MemTotal /proc/meminfo | awk '{print int($2/1000000+0.5)*1.5}' | bc)G
 
-    # check if uefi boot
-    echo Check Boot system
-    checkefi=$(ls /sys/firmware/efi/efivars/ | wc -l)
+    # check if uefi boot TODO when useful
+    # echo Check Boot system
+    # checkefi=$(ls /sys/firmware/efi/efivars/ | wc -l)
 
-    if [ $checkefi = 0 ];then
-        boottype="21686148-6449-6E6F-744E-656564454649"
-    else
-        boottype="C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
-    fi
+    # if [ $checkefi = 0 ];then
+    #     boottype="21686148-6449-6E6F-744E-656564454649"
+    # else
+    #     boottype="C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
+    # fi
 
     echo "label: gpt
 unit: sectors
 
-/dev/sda1 : size=      +250M,   type=$boottype, name=\"boot\"
-/dev/sda2 : size= +$swapsize,   type=0657FD6D-A4AB-43C4-84E5-0933C84B4F4F, name=\"swap\"
-/dev/sda3 : size=       +25G,   type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709, name=\"root\"
-/dev/sda4 : type=933AC7E1-2EB4-4F13-B844-0E14E2AEF915, name=\"home\"" > part_table
+/dev/sda1 : size= +2M,        type=21686148-6449-6E6F-744E-656564454649
+/dev/sda2 : size= +$swapsize, type=0657FD6D-A4AB-43C4-84E5-0933C84B4F4F
+/dev/sda3 : size= +25G,       type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709, attrs=\"LegacyBIOSBootable\"
+/dev/sda4 : type=933AC7E1-2EB4-4F13-B844-0E14E2AEF915" > part_table
     sfdisk /dev/sda < part_table
     rm part_table
-}
 
-makeFileSystem () {
     echo making filesystem
-    mkfs.ext4 /dev/sda1
     mkfs.ext4 /dev/sda3
     mkfs.ext4 /dev/sda4
+
     echo making swappartition
     mkswap /dev/sda2
     swapon /dev/sda2
-}
 
-mountTemp () {
     mount /dev/sda3 /mnt
 
-    mkdir /mnt/boot
     mkdir /mnt/home
 
-    mount /dev/sda1 /mnt/boot
     mount /dev/sda4 /mnt/home
 }
 
@@ -55,7 +49,6 @@ installArch () {
 generateFSTab () {
     genfstab -U /mnt > /mnt/etc/fstab
 }
-
 
 setupLocalandTimeZone () {
     echo Setup local
@@ -137,15 +130,13 @@ if ! ping -q -c 1 -W 1 1.1.1.1 >/dev/null 2>&1;then
     exit
 fi
 
-createPartitionTable
-makeFileSystem
-mountTemp
+makingGRUBGPTPartitionTable
 installArch
 generateFSTab
-installGrub
 setupLocalandTimeZone
 setupHostname
 changeRoot
+# installGrub
 # systemctlConfig
 # setupPassAndUser
 # CreateUser
