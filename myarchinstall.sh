@@ -1,12 +1,12 @@
 #!/bin/sh
 
-# Load keys
-echo Load keys
-loadkeys be-latin1
+# # Load keys
+# echo Load keys
+# loadkeys be-latin1
 
-# set timedate
-echo set timedate
-timedatectl set-ntp true
+# # set timedate
+# echo set timedate
+# timedatectl set-ntp true
 
 # check if uefi boot
 echo Check if uefi boot
