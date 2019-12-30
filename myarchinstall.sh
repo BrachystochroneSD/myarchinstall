@@ -4,13 +4,23 @@
 
 # FOR EFI BOOT : C12A7328-F81F-11D2-BA4B-00A0C93EC93B
 
-grubPartitionTable () {
+createPartitionTable () {
     swapsize=$(grep MemTotal /proc/meminfo | awk '{print int($2/1000000+0.5)*1.5}' | bc)G
+
+    # check if uefi boot
+    echo Check Boot system
+    checkefi=$(ls /sys/firmware/efi/efivars/ | wc -l)
+
+    if [ $checkefi = 0 ];then
+        boottype="21686148-6449-6E6F-744E-656564454649"
+    else
+        boottype="C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
+    fi
 
     echo "label: gpt
 unit: sectors
 
-/dev/sda1 : size=      +250M,   type=21686148-6449-6E6F-744E-656564454649, name=\"boot\"
+/dev/sda1 : size=      +250M,   type=$boottype, name=\"boot\"
 /dev/sda2 : size= +$swapsize,   type=0657FD6D-A4AB-43C4-84E5-0933C84B4F4F, name=\"swap\"
 /dev/sda3 : size=       +25G,   type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709, name=\"root\"
 /dev/sda4 : type=933AC7E1-2EB4-4F13-B844-0E14E2AEF915, name=\"home\"" > part_table
@@ -112,10 +122,6 @@ installFonts () {
 echo set timedate
 timedatectl set-ntp true
 
-# check if uefi boot
-echo Check if uefi boot
-checkefi=$(ls /sys/firmware/efi/efivars/ | wc -l)
-
 #check connection
 checkping=$(ping )
 if ! ping -q -c 1 -W 1 1.1.1.1 >/dev/null 2>&1;then
@@ -123,15 +129,7 @@ if ! ping -q -c 1 -W 1 1.1.1.1 >/dev/null 2>&1;then
     exit
 fi
 
-if [ $checkefi = 0 ];then
-    #grub boot loader
-    grubPartitionTable
-else
-    #TODO
-    echo efi install not configured yet
-    exit
-fi
-
+createPartitionTable
 makeFileSystem
 generateFSTab
 # installArch
