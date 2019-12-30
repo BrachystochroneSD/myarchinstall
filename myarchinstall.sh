@@ -1,23 +1,8 @@
 #!/bin/sh
 
-# # Load keys
-# echo Load keys
-# loadkeys be-latin1
+# location of this file : https://raw.githubusercontent.com/BrachystochroneSD/myarchinstall/master/myarchinstall.sh
 
-# # set timedate
-# echo set timedate
-# timedatectl set-ntp true
-
-# check if uefi boot
-echo Check if uefi boot
-checkefi=$(ls /sys/firmware/efi/efivars/ | wc -l)
-
-#check connection
-checkping=$(ping )
-if ! ping -q -c 1 -W 1 1.1.1.1 >/dev/null 2>&1;then
-    echo No internet Connection
-    exit
-fi
+# FOR EFI BOOT : C12A7328-F81F-11D2-BA4B-00A0C93EC93B
 
 grubPartitionTable () {
     swapsize=$(grep MemTotal /proc/meminfo | awk '{print int($2/1000000+0.5)*1.5}' | bc)G
@@ -25,10 +10,10 @@ grubPartitionTable () {
     echo "label: gpt
 unit: sectors
 
-/dev/sda1 : size=       +250M,   type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, name=\"boot\"
+/dev/sda1 : size=      +250M,   type=21686148-6449-6E6F-744E-656564454649, name=\"boot\"
 /dev/sda2 : size= +$swapsize,   type=0657FD6D-A4AB-43C4-84E5-0933C84B4F4F, name=\"swap\"
-/dev/sda3 : size=        +25G,   type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709, name=\"root\"
-/dev/sda4 : type=33AC7E1-2EB4-4F13-B844-0E14E2AEF915, name=\"home\"" > part_table
+/dev/sda3 : size=       +25G,   type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709, name=\"root\"
+/dev/sda4 : type=933AC7E1-2EB4-4F13-B844-0E14E2AEF915, name=\"home\"" > part_table
     sfdisk /dev/sda < part_table
     rm part_table
 }
@@ -44,6 +29,9 @@ makeFileSystem () {
 }
 
 mountTemp () {
+    mkdir /mnt/boot
+    mkdir /mnt/home
+
     mount /dev/sda3 /mnt
     mount /dev/sda1 /mnt/boot
     mount /dev/sda4 /mnt/home
@@ -59,6 +47,30 @@ generateFSTab () {
     genfstab -U /mnt > /mnt/etc/fstab
 }
 
+installGrub () {
+    echo Installing Grub
+    grub-install --target=i386-pc /dev/sda
+    echo creating config file
+    grub-mkconfig -o /mnt/boot/grub/grub.cfg
+}
+
+setupLocalandTimeZone () {
+    echo Setup local
+    sed -i 's/#\(\(fr_BE\|en_US\).*\)/\1/' /mnt/etc/locale.gen
+    # locale-gen TODO need to be done in the root of the pc
+    echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
+    echo Setup Timezone
+    ln -sf /mnt/user/share/zoneinfo/Europe/Brussels /mnt/etc/localtime
+}
+
+setupHostname () {
+    echo Choose hostname:
+    read hostname
+    echo $hostname > /mnt/etc/hostname
+}
+
+# ------------
+# The rest Need to be done manually (for now)
 changeRoot () {
     arch-chroot /mnt
 }
@@ -67,36 +79,12 @@ systemctlConfig () {
     systemctl enable NetworkManager
 }
 
-installGrub () {
-    echo Installing Grub
-    grub-install --target=i386-pc /dev/sda
-    echo creating config file
-    grub-mkconfig -o /boot/grub/grub.cfg
-}
-
 setupPassAndUser () {
     echo Create Root Password
     passwd
 }
 
-setupLocalandTimeZone () {
-    echo Setup local
-    sed -i 's/#\(\(fr_BE\|en_US\).*\)/\1/' /etc/locale.gen
-    locale-gen
-    echo "LANG=en_US.UTF-8" > /etc/locale.conf
-    echo Setup Timezone
-    ln -sf /user/share/zoneinfo/Europe/Brussels /etc/localtime
-}
-
-setupHostname () {
-    echo Choose hostname:
-    read hostname
-    echo $hostname > /etc/hostname
-}
-
-# ------------
-
-createuser () {
+CreateUser () {
     echo Add sam user
     useradd -m -g wheel sam
     echo Editting sudoers TODO
@@ -118,15 +106,39 @@ installFonts () {
     pacman -S ttf-linux-libertine ttf-inconsolata
 }
 
+# MAIN SHIT
+
+# set timedate
+echo set timedate
+timedatectl set-ntp true
+
+# check if uefi boot
+echo Check if uefi boot
+checkefi=$(ls /sys/firmware/efi/efivars/ | wc -l)
+
+#check connection
+checkping=$(ping )
+if ! ping -q -c 1 -W 1 1.1.1.1 >/dev/null 2>&1;then
+    echo No internet Connection
+    exit
+fi
+
 if [ $checkefi = 0 ];then
     #grub boot loader
     grubPartitionTable
-    makeFileSystem
-    installArch
-    generate
 else
     #TODO
     echo efi install not configured yet
     exit
 fi
-# create partition table with sfdisk
+
+makeFileSystem
+generateFSTab
+# installArch
+installGrub
+setupLocalandTimeZone
+setupHostname
+changeRoot
+# systemctlConfig
+# setupPassAndUser
+# CreateUser
