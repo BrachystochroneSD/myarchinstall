@@ -2,8 +2,6 @@
 
 # location of this file : https://raw.githubusercontent.com/BrachystochroneSD/myarchinstall/master/myarchinstall.sh
 
-# FOR EFI BOOT : C12A7328-F81F-11D2-BA4B-00A0C93EC93B
-
 createPartitionTable () {
     swapsize=$(grep MemTotal /proc/meminfo | awk '{print int($2/1000000+0.5)*1.5}' | bc)G
 
@@ -39,10 +37,11 @@ makeFileSystem () {
 }
 
 mountTemp () {
+    mount /dev/sda3 /mnt
+
     mkdir /mnt/boot
     mkdir /mnt/home
 
-    mount /dev/sda3 /mnt
     mount /dev/sda1 /mnt/boot
     mount /dev/sda4 /mnt/home
 }
@@ -50,7 +49,7 @@ mountTemp () {
 installArch () {
     echo Installing arch linux and packages
     # TODO: Set up the complete list
-    pacstrap /mnt base base-devel vim emacs networkmanager grub
+    pacstrap /mnt base base-devel # vim emacs networkmanager grub
 }
 
 generateFSTab () {
@@ -132,7 +131,7 @@ fi
 createPartitionTable
 makeFileSystem
 generateFSTab
-# installArch
+installArch
 installGrub
 setupLocalandTimeZone
 setupHostname
