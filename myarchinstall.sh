@@ -131,6 +131,7 @@ fi
 createPartitionTable
 makeFileSystem
 generateFSTab
+mountTemp
 installArch
 installGrub
 setupLocalandTimeZone
