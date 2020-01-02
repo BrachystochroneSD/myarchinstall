@@ -56,13 +56,6 @@ generateFSTab () {
     genfstab -U /mnt > /mnt/etc/fstab
 }
 
-installGrub () {
-    echo Installing Grub
-    grub-install --target=i386-pc /dev/sda
-    echo creating config file
-    grub-mkconfig -o /mnt/boot/grub/grub.cfg
-}
-
 setupLocalandTimeZone () {
     echo Setup local
     sed -i 's/#\(\(fr_BE\|en_US\).*\)/\1/' /mnt/etc/locale.gen
@@ -82,6 +75,16 @@ setupHostname () {
 # The rest Need to be done manually (for now)
 changeRoot () {
     arch-chroot /mnt
+}
+
+installGrub () {
+    pacman -S grub
+    # TODO : for now, need to be done inside the "mounted root"
+    # Problem : Grub loop of the dead
+    echo Installing Grub
+    grub-install --target=i386-pc /dev/sda
+    echo creating config file
+    grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 systemctlConfig () {
@@ -130,9 +133,9 @@ fi
 
 createPartitionTable
 makeFileSystem
-generateFSTab
 mountTemp
 installArch
+generateFSTab
 installGrub
 setupLocalandTimeZone
 setupHostname
