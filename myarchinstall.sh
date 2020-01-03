@@ -49,12 +49,13 @@ mountTemp () {
 installArch () {
     echo Installing arch linux and packages
     # TODO: Set up the complete list
-    pacstrap /mnt base base-devel # vim emacs networkmanager grub
+    pacstrap /mnt base base-devel linux linux-firmware # vim emacs networkmanager grub
 }
 
 generateFSTab () {
     genfstab -U /mnt > /mnt/etc/fstab
 }
+
 
 setupLocalandTimeZone () {
     echo Setup local
@@ -63,6 +64,7 @@ setupLocalandTimeZone () {
     echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
     echo Setup Timezone
     ln -sf /mnt/user/share/zoneinfo/Europe/Brussels /mnt/etc/localtime
+    echo "KEYMAP=be-latin1" > /mnt/etc/vconsole.conf
 }
 
 setupHostname () {
@@ -75,6 +77,10 @@ setupHostname () {
 # The rest Need to be done manually (for now)
 changeRoot () {
     arch-chroot /mnt
+}
+
+clock () {
+    hwclock --systohc
 }
 
 installGrub () {
