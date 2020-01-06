@@ -103,14 +103,35 @@ CreateUser () {
 
 installWM () {
     #TODO
-    pacman -S i3-gaps
-    pacman -S xorg-server xorg-xinit
+    pacman -S i3-gaps git xorg-xinit xorg-server emacs python man firefox w3m ncmpcpp mpd mpv mpd
 }
 
+installst () {
+    cd {$HOME}/.config
+    git clone "git@github.com:BrachystochroneSD/st.git"
+}
+
+installAUR () {
+    echo Installing "$1"...
+    git clone "https://aur.archlinux.org/$1.git"
+    cd "$1" makepkg -si
+    cd ..
+}
+
+installfromAUR () {
+    # install polybar and cava
+    #installing
+    mkdir ${HOME}/AURinstall && cd {$HOME}/AURinstall
+    installAUR polybar
+    installAUR cava
+    rm -rf {$HOME}/AURinstall
+}
 
 installdotfiles () {
     #TODO
-    git clone mydotfiles
+    cd {$HOME}
+    git clone "git@github.com:BrachystochroneSD/dotfiles.git"
+
 }
 
 installFonts () {
