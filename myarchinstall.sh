@@ -103,12 +103,15 @@ CreateUser () {
 
 installWM () {
     #TODO
-    pacman -S i3-gaps git xorg-xinit xorg-server emacs python man firefox w3m ncmpcpp mpd mpv mpd
+    pacman -S i3-gaps git xorg-xinit xorg-server emacs python man firefox w3m ncmpcpp mpd mpv mpd dunst # gtk-3.0
 }
 
 installst () {
     cd {$HOME}/.config
     git clone "git@github.com:BrachystochroneSD/st.git"
+    cd st 
+    make
+    sudo make install
 }
 
 installAUR () {
