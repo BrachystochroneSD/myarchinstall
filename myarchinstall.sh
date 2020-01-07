@@ -99,12 +99,17 @@ CreateUser () {
     echo Add sam user
     useradd -m -g wheel sam
     echo Editting sudoers TODO
+    sed 's/# \(%wheel ALL=(ALL) ALL\)/\1/' /etc/sudoers
 }
 
 installWM () {
     #TODO
-    pacman -S i3-gaps git xorg-xinit xorg-server emacs python man firefox w3m ncmpcpp mpd mpv mpd dunst # gtk-3.0
+    pacman -S i3-gaps git xorg-xinit xorg-server emacs python man firefox w3m ncmpcpp mpd mpv mpd dunst unzip
 }
+
+getwalpaper () {
+ # get from nextcloud mkdir image and 
+	}
 
 installst () {
     cd {$HOME}/.config
