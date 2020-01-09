@@ -104,7 +104,7 @@ CreateUser () {
 
 installWM () {
     #TODO
-    pacman -S i3-gaps git xorg-xinit xorg-server emacs python man firefox w3m ncmpcpp mpd mpv mpd dunst unzip
+    pacman -S i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv mpd dunst unzip bc openssh xclip imagemagick
 }
 
 getwalpaper () {
@@ -122,7 +122,8 @@ installst () {
 installAUR () {
     echo Installing "$1"...
     git clone "https://aur.archlinux.org/$1.git"
-    cd "$1" makepkg -si
+    cd "$1"
+    makepkg -si
     cd ..
 }
 
@@ -132,6 +133,7 @@ installfromAUR () {
     mkdir ${HOME}/AURinstall && cd {$HOME}/AURinstall
     installAUR polybar
     installAUR cava
+    installAUR networkmanager-dmenu-git
     rm -rf {$HOME}/AURinstall
 }
 
