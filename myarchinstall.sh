@@ -112,7 +112,7 @@ CreateUser () {
 
 installWM () {
     #TODO
-    pacman -S i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv mpd dunst unzip bc openssh xclip imagemagick
+    pacman -S i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv mpd dunst unzip bc openssh xclip imagemagick feh
 }
 
 getwalpaper () {
