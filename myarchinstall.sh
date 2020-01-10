@@ -76,6 +76,14 @@ clock () {
     hwclock --systohc
 }
 
+pipinstall () {
+	sudo pip install $1
+}
+
+allpipinstalls () {
+	pipinstall wpgtk
+}
+
 installGrub () {
     pacman -S grub
     # TODO : for now, need to be done inside the "mounted root"
@@ -147,6 +155,8 @@ installdotfiles () {
 installFonts () {
     pacman -S ttf-linux-libertine ttf-inconsolata
 }
+
+# TODO : chsh zsh, create ssh and upload it to github with api. 
 
 # MAIN SHIT
 
