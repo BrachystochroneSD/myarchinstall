@@ -149,18 +149,22 @@ installAUR () {
     cd "$lastdir"
 }
 
+installdotfiles () {
+    dotgitdir="${HOME}/.dotfiles"
+    mkdir "$dotgitdir"
+    cd "$dotgitdir"
+    /bin/git init --bare
+    /bin/git remote add "git@github.com:BrachystochroneSD/dotfiles.git" # possible problem : ssh key
+    cd "${HOME}"
+    /bin/git --git-dir="$dotgitdir" --work-tree="${HOME}" pull origin master
+}
+
 installfromAUR () {
     mkdir ${HOME}/AURinstall && cd ${HOME}/AURinstall
     installAUR polybar
     installAUR cava
     installAUR networkmanager-dmenu-git
     rm -rf ${HOME}/AURinstall
-}
-
-installdotfiles () {
-    cd {$HOME}
-    git clone "git@github.com:BrachystochroneSD/dotfiles.git"
-
 }
 
 installFonts () {
