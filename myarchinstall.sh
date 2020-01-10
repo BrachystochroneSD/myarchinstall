@@ -1,11 +1,21 @@
 #!/bin/sh
 
 # location of this file : https://raw.githubusercontent.com/BrachystochroneSD/myarchinstall/master/myarchinstall.sh
-fjsldkf
+
+# TODO LIST
+#create option to launch install efore and after arch-chroot
+# set up dotfile with git init and git pull
+# locale-gen 
+# efi boot (optional)
+# chsh zsh 
+# create ssh and upload it to github with api. 
+# setup default wallpaper
+# Nextcloud link
+# emacs dotfiles
+
 makingGRUBGPTPartitionTable () {
     swapsize=$(grep MemTotal /proc/meminfo | awk '{print int($2/1000000+0.5)*1.5}' | bc)G
 
-    # check if uefi boot TODO when useful
     # echo Check Boot system
     # checkefi=$(ls /sys/firmware/efi/efivars/ | wc -l)
 
@@ -43,7 +53,7 @@ unit: sectors
 installArch () {
     echo Installing arch linux and packages
     # TODO: Set up the complete list
-    pacstrap /mnt base base-devel linux linux-firmware # vim emacs networkmanager grub
+    pacstrap /mnt base base-devel linux linux-firmware i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv mpd dunst unzip bc openssh xclip imagemagick feh fzf python-pip vim emacs networkmanager grub picom fzf 
 }
 
 generateFSTab () {
@@ -53,7 +63,6 @@ generateFSTab () {
 setupLocalandTimeZone () {
     echo Setup local
     sed -i 's/#\(\(fr_BE\|en_US\).*\)/\1/' /mnt/etc/locale.gen
-    # locale-gen TODO need to be done in the root of the pc
     echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
     echo Setup Timezone
     ln -sf /mnt/user/share/zoneinfo/Europe/Brussels /mnt/etc/localtime
@@ -85,9 +94,6 @@ allpipinstalls () {
 }
 
 installGrub () {
-    pacman -S grub
-    # TODO : for now, need to be done inside the "mounted root"
-    # Problem : Grub loop of the dead
     echo Installing Grub
     grub-install --target=i386-pc /dev/sda
     echo creating config file
@@ -107,17 +113,8 @@ CreateUser () {
     echo Add sam user
     useradd -m -g wheel sam
     echo Editting sudoers TODO
-    sed 's/# \(%wheel ALL=(ALL) ALL\)/\1/' /etc/sudoers
+    sed -i 's/# \(%wheel ALL=(ALL) ALL\)/\1/' /etc/sudoers
 }
-
-installWM () {
-    #TODO
-    pacman -S i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv mpd dunst unzip bc openssh xclip imagemagick feh
-}
-
-getwalpaper () {
- # get from nextcloud mkdir image and 
-	}
 
 installst () {
     cd {$HOME}/.config
@@ -136,8 +133,6 @@ installAUR () {
 }
 
 installfromAUR () {
-    # install polybar and cava
-    #installing
     mkdir ${HOME}/AURinstall && cd {$HOME}/AURinstall
     installAUR polybar
     installAUR cava
@@ -146,7 +141,6 @@ installfromAUR () {
 }
 
 installdotfiles () {
-    #TODO
     cd {$HOME}
     git clone "git@github.com:BrachystochroneSD/dotfiles.git"
 
@@ -156,7 +150,6 @@ installFonts () {
     pacman -S ttf-linux-libertine ttf-inconsolata
 }
 
-# TODO : chsh zsh, create ssh and upload it to github with api. 
 
 # MAIN SHIT
 
