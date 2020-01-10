@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # location of this file : https://raw.githubusercontent.com/BrachystochroneSD/myarchinstall/master/myarchinstall.sh
-
+fjsldkf
 makingGRUBGPTPartitionTable () {
     swapsize=$(grep MemTotal /proc/meminfo | awk '{print int($2/1000000+0.5)*1.5}' | bc)G
 
