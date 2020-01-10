@@ -5,10 +5,9 @@
 # TODO LIST
 #create option to launch install efore and after arch-chroot
 # set up dotfile with git init and git pull
-# locale-gen 
+# locale-gen
 # efi boot (optional)
-# chsh zsh 
-# create ssh and upload it to github with api. 
+# create ssh and upload it to github with api.
 # setup default wallpaper
 # Nextcloud link
 # emacs dotfiles
@@ -53,7 +52,7 @@ unit: sectors
 installArch () {
     echo Installing arch linux and packages
     # TODO: Set up the complete list
-    pacstrap /mnt base base-devel linux linux-firmware i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv mpd dunst unzip bc openssh xclip imagemagick feh fzf python-pip vim emacs networkmanager grub picom fzf 
+    pacstrap /mnt base base-devel linux linux-firmware i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv mpd dunst unzip bc openssh xclip imagemagick feh fzf python-pip vim emacs networkmanager grub picom fzf
 }
 
 generateFSTab () {
@@ -114,30 +113,48 @@ CreateUser () {
     useradd -m -g wheel sam
     echo Editting sudoers TODO
     sed -i 's/# \(%wheel ALL=(ALL) ALL\)/\1/' /etc/sudoers
+    chsh -s /bin/zsh sam
 }
 
-installst () {
-    cd {$HOME}/.config
-    git clone "git@github.com:BrachystochroneSD/st.git"
-    cd st 
+# Install Function GIT PIP and AUR
+
+installGIT () {
+    lastdir="$PWD"
+    repo="$1"
+    [[ -z "$2" ]] && dir="$2" || dir="${HOME}/.config"
+    [[ -z "$3" ]] && user="$3" || user="BrachystochroneSD"
+
+    cd "$dir"
+    git clone --depth 1 "git@github.com:$user/$repo.git"
+    cd "$repo"
     make
     sudo make install
+    cd "$lastdir"
+}
+
+installPIP () {
+    echo Installing "$1"...
+    sudo pip install "$1"
 }
 
 installAUR () {
-    echo Installing "$1"...
+    lastdir="$PWD"
+    aurdir="${HOME}/aur_install_dir"
+    [[ ! -d "$aurdir" ]] && mkdir "$aurdirflkdj"
+    echo "Installing $1 in $aurdir"...
+    cd "$aurdir"
     git clone "https://aur.archlinux.org/$1.git"
     cd "$1"
     makepkg -si
-    cd ..
+    cd "$lastdir"
 }
 
 installfromAUR () {
-    mkdir ${HOME}/AURinstall && cd {$HOME}/AURinstall
+    mkdir ${HOME}/AURinstall && cd ${HOME}/AURinstall
     installAUR polybar
     installAUR cava
     installAUR networkmanager-dmenu-git
-    rm -rf {$HOME}/AURinstall
+    rm -rf ${HOME}/AURinstall
 }
 
 installdotfiles () {
@@ -164,13 +181,26 @@ if ! ping -q -c 1 -W 1 1.1.1.1 >/dev/null 2>&1;then
     exit
 fi
 
-makingGRUBGPTPartitionTable
-installArch
-generateFSTab
-setupLocalandTimeZone
-setupHostname
-changeRoot
-# installGrub
-# systemctlConfig
-# setupPassAndUser
-# CreateUser
+case $1 in
+    --first)
+        makingGRUBGPTPartitionTable
+        installArch
+        generateFSTab
+        setupLocalandTimeZone
+        setupHostname
+        changeRoot
+        ;;
+    --tworst)
+        # To be launched avfter the arch-chroot, in root
+        clock
+        installGrub
+        systemctlConfig
+        setupPassAndUser
+        CreateUser
+        ;;
+    --thirst)
+       # to be launched with the user name
+        ;;
+    *)
+        printf "Need options \n    --first\n     --tworst\n     --thirst\n"
+esac
