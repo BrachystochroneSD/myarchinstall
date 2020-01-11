@@ -5,8 +5,9 @@
 # TODO LIST
 # ask for prompt shits first
 # mpd server config
-# efi boot (optional)
-# add emacs.d colors.sh and offlineimap to the dotfiles
+# create makefile for keepmenu
+# efi boot
+# add emacs.d colors.sh and offlineimaprc to the dotfiles
 # polybar battery config tweaks
 
 #########
@@ -128,8 +129,8 @@ createssh () {
 installGIT () {
     lastdir="$PWD"
     repo="$1"
-    [[ -z "$2" ]] && dir="$2" || dir="${HOME}/.config"
-    [[ -z "$3" ]] && user="$3" || user="BrachystochroneSD"
+    [[ -n "$2" ]] && dir="$2" || dir="${HOME}/.config"
+    [[ -n "$3" ]] && user="$3" || user="BrachystochroneSD"
 
     cd "$dir"
     git clone --depth 1 "git@github.com:$user/$repo.git"
