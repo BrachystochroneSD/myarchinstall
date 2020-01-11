@@ -3,13 +3,15 @@
 # location of this file : https://raw.githubusercontent.com/BrachystochroneSD/myarchinstall/master/myarchinstall.sh
 
 # TODO LIST
+# ask for prompt shits first
 # mpd server config
 # efi boot (optional)
-# setup default wallpaper
-# Nextcloud link
-# download authentication credentials with nextcloud
-# emacs dotfiles
-# add colors.sh to the dotfiles
+# add emacs.d colors.sh and offlineimap to the dotfiles
+# polybar battery config tweaks
+
+#########
+# FIRST #
+#########
 
 makingGRUBGPTPartitionTable () {
     swapsize=$(grep MemTotal /proc/meminfo | awk '{print int($2/1000000+0.5)*1.5}' | bc)G
@@ -50,8 +52,8 @@ unit: sectors
 
 installArch () {
     echo Installing arch linux and packages
-    # TODO: Set up the complete list
-    pacstrap /mnt base base-devel linux linux-firmware i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv mpc dunst libnotify unzip bc openssh xclip imagemagick feh fzf python-pip vim emacs networkmanager grub picom fzf ttf-linux-libertine ttf-inconsolata redshift jq
+    # TODO: Set up the complete list and sort it (it's a mess!)
+    pacstrap /mnt base base-devel linux linux-firmware i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv mpc dunst libnotify unzip bc openssh xclip imagemagick feh fzf python-pip vim emacs networkmanager grub picom fzf ttf-linux-libertine ttf-inconsolata redshift jq offlineimap davfs2 # nextcloud-client
 }
 
 generateFSTab () {
@@ -77,19 +79,13 @@ changeRoot () {
     arch-chroot /mnt
 }
 
-# The rest Need to be done manually (for now)
+##########
+# TWORST #
+##########
 
 clockandlocale () {
     locale-gen
     hwclock --systohc
-}
-
-pipinstall () {
-    sudo pip install $1
-}
-
-allpipinstalls () {
-    pipinstall wpgtk
 }
 
 installGrub () {
@@ -106,17 +102,17 @@ systemctlConfig () {
 setupPassAndUser () {
     echo Create Root Password
     passwd
+    chsh -s /bin/zsh
 }
 
-CreateUser () {
+createUser () {
     echo Add sam user
     useradd -m -g wheel sam
     echo Editting sudoers TODO
     sed -i 's/# \(%wheel ALL=(ALL) ALL\)/\1/' /etc/sudoers
     chsh -s /bin/zsh sam
+    passwd sam
 }
-
-# ssh
 
 createssh () {
     ssh-keygen -f "${HOME}/.ssh/id_rsa" -N ""
