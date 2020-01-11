@@ -9,6 +9,7 @@
 # efi boot
 # add emacs.d colors.sh and offlineimaprc to the dotfiles
 # polybar battery config tweaks
+# check gtk options https://github.com/deviantfero/wpgtk/wiki/Installation
 
 #########
 # FIRST #
@@ -54,7 +55,7 @@ unit: sectors
 installArch () {
     echo Installing arch linux and packages
     # TODO: Set up the complete list and sort it (it's a mess!)
-    pacstrap /mnt base base-devel linux linux-firmware i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv mpc dunst libnotify unzip bc openssh xclip imagemagick feh fzf python-pip vim emacs networkmanager grub picom fzf ttf-linux-libertine ttf-inconsolata redshift jq offlineimap davfs2 # nextcloud-client
+    pacstrap /mnt base base-devel linux linux-firmware i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv mpc dunst libnotify unzip bc openssh xclip imagemagick feh fzf python-pip vim emacs networkmanager grub picom fzf ttf-linux-libertine ttf-inconsolata redshift jq offlineimap davfs2 xdotool # nextcloud-client
 }
 
 generateFSTab () {
@@ -74,6 +75,7 @@ setupHostname () {
     echo Choose hostname:
     read hostname
     echo $hostname > /mnt/etc/hostname
+    printf "192.168.0.102 www.zenocyne.com\n192.168.0.102 nextcloud.zenocyne.com\n" >> /mnt/etc/hosts
 }
 
 changeRoot () {
@@ -171,14 +173,18 @@ installNC () {
     zenomount="${HOME}/zenocloud"
     zenodir="$1"
     installdir="$2"
-    [[ ! -d "$zenomount" ]] && mkdir "$zenomount"
-    [[ ! -d "$installdir" ]] && mkdir "$instaldir"
+    echo Installing $zenomount/$zenodir in $installdir
+    mkdir -p "$zenomount"
+    mkdir -p "$installdir"
     if ! grep -qs "$zenomount " "/proc/mounts";then
         sudo mount -t davfs https://nextcloud.zenocyne.com/remote.php/webdav/ "$zenomount" || exit
+    else	
+	echo $zenomount already mounted
     fi
     [[ ! -d "$zenomount/$zenodir" ]] && exit
 
-    sudo cp -rv "$zenomount/$zenodir/*" "$installdir/"
+    echo copy
+    sudo cp -rv "$zenomount"/"$zenodir"/* "$installdir"/
 }
 
 # MAIN SHIT
