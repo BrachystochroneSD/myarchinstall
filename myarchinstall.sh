@@ -3,14 +3,13 @@
 # location of this file : https://raw.githubusercontent.com/BrachystochroneSD/myarchinstall/master/myarchinstall.sh
 
 # TODO LIST
-#create option to launch install efore and after arch-chroot
-# set up dotfile with git init and git pull
-# locale-gen
+# mpd server config
 # efi boot (optional)
-# create ssh and upload it to github with api.
 # setup default wallpaper
 # Nextcloud link
+# download authentication credentials with nextcloud
 # emacs dotfiles
+# add colors.sh to the dotfiles
 
 makingGRUBGPTPartitionTable () {
     swapsize=$(grep MemTotal /proc/meminfo | awk '{print int($2/1000000+0.5)*1.5}' | bc)G
@@ -52,7 +51,7 @@ unit: sectors
 installArch () {
     echo Installing arch linux and packages
     # TODO: Set up the complete list
-    pacstrap /mnt base base-devel linux linux-firmware i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv mpd dunst unzip bc openssh xclip imagemagick feh fzf python-pip vim emacs networkmanager grub picom fzf
+    pacstrap /mnt base base-devel linux linux-firmware i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv mpc dunst libnotify unzip bc openssh xclip imagemagick feh fzf python-pip vim emacs networkmanager grub picom fzf ttf-linux-libertine ttf-inconsolata redshift jq
 }
 
 generateFSTab () {
@@ -74,22 +73,23 @@ setupHostname () {
     echo $hostname > /mnt/etc/hostname
 }
 
-# ------------
-# The rest Need to be done manually (for now)
 changeRoot () {
     arch-chroot /mnt
 }
 
-clock () {
+# The rest Need to be done manually (for now)
+
+clockandlocale () {
+    locale-gen
     hwclock --systohc
 }
 
 pipinstall () {
-	sudo pip install $1
+    sudo pip install $1
 }
 
 allpipinstalls () {
-	pipinstall wpgtk
+    pipinstall wpgtk
 }
 
 installGrub () {
@@ -116,6 +116,17 @@ CreateUser () {
     chsh -s /bin/zsh sam
 }
 
+# ssh
+
+createssh () {
+    ssh-keygen -f "${HOME}/.ssh/id_rsa" -N ""
+    sshkey=$(cat "${HOME}/.ssh/id_rsa.pub")
+    title=$(whoami)@$(cat /etc/hostname)
+    token=$(awk '($1=="sshadmin"){print $2}' "${HOME}/.authentication/tokengit" )
+    json=$(printf '{"title": "%s", "key": "%s"}' "$title" "$sshkey" )
+    curl -d "$json" -H "Authorization: token $token" https://api.github.com/user/keys
+}
+
 # Install Function GIT PIP and AUR
 
 installGIT () {
@@ -140,7 +151,7 @@ installPIP () {
 installAUR () {
     lastdir="$PWD"
     aurdir="${HOME}/aur_install_dir"
-    [[ ! -d "$aurdir" ]] && mkdir "$aurdirflkdj"
+    [[ ! -d "$aurdir" ]] && mkdir "$aurdir"
     echo "Installing $1 in $aurdir"...
     cd "$aurdir"
     git clone "https://aur.archlinux.org/$1.git"
@@ -164,29 +175,15 @@ installfromAUR () {
     installAUR polybar
     installAUR cava
     installAUR networkmanager-dmenu-git
+    installAUR ttf-monofur
     rm -rf ${HOME}/AURinstall
 }
 
-installFonts () {
-    pacman -S ttf-linux-libertine ttf-inconsolata
-}
-
-
 # MAIN SHIT
-
-# set timedate
-echo set timedate
-timedatectl set-ntp true
-
-#check connection
-checkping=$(ping )
-if ! ping -q -c 1 -W 1 1.1.1.1 >/dev/null 2>&1;then
-    echo No internet Connection
-    exit
-fi
-
 case $1 in
     --first)
+        timedatectl set-ntp true
+
         makingGRUBGPTPartitionTable
         installArch
         generateFSTab
@@ -196,14 +193,14 @@ case $1 in
         ;;
     --tworst)
         # To be launched avfter the arch-chroot, in root
-        clock
+        clockandlocale
         installGrub
         systemctlConfig
         setupPassAndUser
         CreateUser
         ;;
     --thirst)
-       # to be launched with the user name
+        # to be launched with the user name
         ;;
     *)
         printf "Need options \n    --first\n     --tworst\n     --thirst\n"
