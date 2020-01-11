@@ -161,43 +161,70 @@ installdotfiles () {
     mkdir "$dotgitdir"
     cd "$dotgitdir"
     /bin/git init --bare
-    /bin/git remote add "git@github.com:BrachystochroneSD/dotfiles.git" # possible problem : ssh key
+    /bin/git remote add "git@github.com:BrachystochroneSD/dotfiles.git"
     cd "${HOME}"
     /bin/git --git-dir="$dotgitdir" --work-tree="${HOME}" pull origin master
 }
 
-installfromAUR () {
-    mkdir ${HOME}/AURinstall && cd ${HOME}/AURinstall
-    installAUR polybar
-    installAUR cava
-    installAUR networkmanager-dmenu-git
-    installAUR ttf-monofur
-    rm -rf ${HOME}/AURinstall
+installNC () {
+    zenomount="${HOME}/zenocloud"
+    zenodir="$1"
+    installdir="$2"
+    [[ ! -d "$zenomount" ]] && mkdir "$zenomount"
+    [[ ! -d "$installdir" ]] && mkdir "$instaldir"
+    if ! grep -qs "$zenomount " "/proc/mounts";then
+        sudo mount -t davfs https://nextcloud.zenocyne.com/remote.php/webdav/ "$zenomount" || exit
+    fi
+    [[ ! -d "$zenomount/$zenodir" ]] && exit
+
+    sudo cp -rv "$zenomount/$zenodir/*" "$installdir/"
 }
 
 # MAIN SHIT
 case $1 in
-    --first)
+    --first) # to be launched first (duh)
         timedatectl set-ntp true
-
         makingGRUBGPTPartitionTable
         installArch
         generateFSTab
         setupLocalandTimeZone
         setupHostname
+        #copy the script in home
+        cp myarchinstall.sh /mnt/home
         changeRoot
         ;;
-    --tworst)
-        # To be launched avfter the arch-chroot, in root
+    --tworst) # To be launched after the arch-chroot, in root
         clockandlocale
         installGrub
         systemctlConfig
         setupPassAndUser
-        CreateUser
+        createUser
+        # move the script in home of sam
+        mv /home/myarchinstall.sh /home/sam/
         ;;
-    --thirst)
-        # to be launched with the user name
+    --thirst) # to be launched with the user name
+        installfromNC
+        createssh
+        #install dotfiles first
+        installdotfiles
+        # install from AUR
+        mkdir ${HOME}/AURinstall
+        cd ${HOME}/AURinstall || exit
+        installAUR polybar
+        installAUR cava
+        installAUR networkmanager-dmenu-git
+        installAUR ttf-monofur
+        # Install from pip
+        installPIP wpgtk
+        # Install from my git
+        installGIT st
+        installGIT dmenu
+        installGIT keepmenu
+        # install from NC
+        installNC "keepassDBs" "${HOME}/.keepassdb"
+        installNC "authenticationfiles" "${HOME}/.authentication"
+        installNC "Images/wallpapers" "${HOME}/Images/wallpapers"
         ;;
     *)
-        printf "Need options \n    --first\n     --tworst\n     --thirst\n"
+        printf "Need options\n     --first\n     --tworst\n     --thirst\n"
 esac
