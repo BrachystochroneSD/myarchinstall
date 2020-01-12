@@ -95,6 +95,7 @@ installGrub () {
     echo Installing Grub
     grub-install --target=i386-pc /dev/sda
     echo creating config file
+    sed -i 's/\(GRUB_GFXMODE=\)/\1640x480,/' /etc/default/grub
     grub-mkconfig -o /boot/grub/grub.cfg
 }
 
@@ -217,6 +218,7 @@ case $1 in
         # install from AUR
         installAUR polybar
         installAUR cava
+	installAUR xwinwrap-git
         installAUR networkmanager-dmenu-git
         installAUR ttf-monofur
         rm -rf ${HOME}/AURinstall
