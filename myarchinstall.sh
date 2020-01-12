@@ -55,7 +55,7 @@ unit: sectors
 installArch () {
     echo Installing arch linux and packages
     # TODO: Set up the complete list and sort it (it's a mess!)
-    pacstrap /mnt base base-devel linux linux-firmware i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv mpc dunst libnotify unzip bc openssh xclip imagemagick feh fzf python-pip vim emacs networkmanager grub picom fzf ttf-linux-libertine ttf-inconsolata redshift jq offlineimap davfs2 xdotool # nextcloud-client
+    pacstrap /mnt base base-devel linux linux-firmware i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv mpc dunst libnotify unzip bc openssh xclip imagemagick feh fzf python-pip vim emacs networkmanager grub picom fzf ttf-linux-libertine ttf-inconsolata redshift jq offlineimap davfs2 xdotool zsh # nextcloud-client
 }
 
 generateFSTab () {
@@ -121,7 +121,7 @@ createssh () {
     ssh-keygen -f "${HOME}/.ssh/id_rsa" -N ""
     sshkey=$(cat "${HOME}/.ssh/id_rsa.pub")
     title=$(whoami)@$(cat /etc/hostname)
-    token=$(awk '($1=="sshadmin"){print $2}' "${HOME}/.authentication/tokengit" )
+    token=$(awk '($1=="sshadmin"){print $2}' "${HOME}/.authentification/tokengit" )
     json=$(printf '{"title": "%s", "key": "%s"}' "$title" "$sshkey" )
     curl -d "$json" -H "Authorization: token $token" https://api.github.com/user/keys
 }
@@ -150,7 +150,7 @@ installPIP () {
 installAUR () {
     lastdir="$PWD"
     aurdir="${HOME}/aur_install_dir"
-    [[ ! -d "$aurdir" ]] && mkdir "$aurdir"
+    mkdir -p "$aurdir"
     echo "Installing $1 in $aurdir"...
     cd "$aurdir"
     git clone "https://aur.archlinux.org/$1.git"
@@ -178,7 +178,7 @@ installNC () {
     mkdir -p "$installdir"
     if ! grep -qs "$zenomount " "/proc/mounts";then
         sudo mount -t davfs https://nextcloud.zenocyne.com/remote.php/webdav/ "$zenomount" || exit
-    else	
+    else
 	echo $zenomount already mounted
     fi
     [[ ! -d "$zenomount/$zenodir" ]] && exit
@@ -210,17 +210,16 @@ case $1 in
         mv /home/myarchinstall.sh /home/sam/
         ;;
     --thirst) # to be launched with the user name
-        installfromNC
+        installNC "authentificationfiles" "${HOME}/.authentification"
         createssh
         #install dotfiles first
         installdotfiles
         # install from AUR
-        mkdir ${HOME}/AURinstall
-        cd ${HOME}/AURinstall || exit
         installAUR polybar
         installAUR cava
         installAUR networkmanager-dmenu-git
         installAUR ttf-monofur
+        rm -rf ${HOME}/AURinstall
         # Install from pip
         installPIP wpgtk
         # Install from my git
@@ -229,8 +228,10 @@ case $1 in
         installGIT keepmenu
         # install from NC
         installNC "keepassDBs" "${HOME}/.keepassdb"
-        installNC "authenticationfiles" "${HOME}/.authentication"
         installNC "Images/wallpapers" "${HOME}/Images/wallpapers"
+        wpg -m
+        echo Everything works!!! Hooray!!!
+        reboot
         ;;
     *)
         printf "Need options\n     --first\n     --tworst\n     --thirst\n"
