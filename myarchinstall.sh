@@ -212,6 +212,9 @@ case $1 in
         ;;
     --thirst) # to be launched with the user name
         installNC "authentificationfiles" "${HOME}/.authentification"
+        installNC "keepassDBs" "${HOME}/.keepassdb"
+        installNC "Images/wallpapers" "${HOME}/Images/wallpapers"
+	umount ${HOME}/zenocloud
         createssh
         #install dotfiles first
         installdotfiles
@@ -221,16 +224,15 @@ case $1 in
 	installAUR xwinwrap-git
         installAUR networkmanager-dmenu-git
         installAUR ttf-monofur
+        installAUR mu
+	installAUR keepmenu
         rm -rf ${HOME}/AURinstall
         # Install from pip
         installPIP wpgtk
         # Install from my git
         installGIT st
         installGIT dmenu
-        installGIT keepmenu
         # install from NC
-        installNC "keepassDBs" "${HOME}/.keepassdb"
-        installNC "Images/wallpapers" "${HOME}/Images/wallpapers"
         wpg -m
         echo Everything works!!! Hooray!!!
         reboot
