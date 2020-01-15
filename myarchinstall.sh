@@ -211,13 +211,17 @@ case $1 in
         mv /home/myarchinstall.sh /home/sam/
         ;;
     --thirst) # to be launched with the user name
+        # install from NC auth files
         installNC "authentificationfiles" "${HOME}/.authentification"
         installNC "keepassDBs" "${HOME}/.keepassdb"
-        installNC "Images/wallpapers" "${HOME}/Images/wallpapers"
-	umount ${HOME}/zenocloud
+        # installNC "Images/wallpapers" "${HOME}/Images/wallpapers" # too long maybe need to do it manually if
+	sudo umount ${HOME}/zenocloud
         createssh
         #install dotfiles first
         installdotfiles
+	# create main dir
+	mkdir "${HOME}"/Documents "${HOME}"/Images "${HOME}"/Images/wallpapers
+	cp "${HOME}"/.config/wpg/mywalls/png "${HOME}"/Images/wallpapers
         # install from AUR
         installAUR polybar
         installAUR cava
@@ -232,10 +236,11 @@ case $1 in
         # Install from my git
         installGIT st
         installGIT dmenu
-        # install from NC
         wpg -m
-        echo Everything works!!! Hooray!!!
-        reboot
+	echo myarchinstall installed sucessfully (or not, because nothing tell if not)
+	echo Reboot ? (y/n)
+	read checkreboot
+	[[ $checkreboot = "y" ]] && reboot
         ;;
     *)
         printf "Need options\n     --first\n     --tworst\n     --thirst\n"
