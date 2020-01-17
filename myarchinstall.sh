@@ -9,7 +9,6 @@
 # efi boot
 # add emacs.d colors.sh and offlineimaprc to the dotfiles
 # polybar battery config tweaks
-# check gtk options https://github.com/deviantfero/wpgtk/wiki/Installation
 
 #########
 # FIRST #
@@ -55,7 +54,7 @@ unit: sectors
 installArch () {
     echo Installing arch linux and packages
     # TODO: Set up the complete list and sort it (it's a mess!)
-    pacstrap /mnt base base-devel linux linux-firmware i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc openssh xclip imagemagick feh fzf python-pip vim emacs networkmanager grub picom fzf ttf-linux-libertine ttf-inconsolata redshift jq offlineimap davfs2 xdotool zsh # nextcloud-client
+    pacstrap /mnt base base-devel linux linux-firmware i3-gaps git xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc openssh xclip imagemagick feh fzf python-pip vim emacs networkmanager grub picom fzf ttf-linux-libertine ttf-inconsolata redshift jq offlineimap davfs2 xdotool zsh arc-gtk-theme xsettingsd
 }
 
 generateFSTab () {
@@ -231,6 +230,8 @@ case $1 in
         installAUR ttf-monofur
         installAUR mu
 	installAUR python-keepmenu-git
+        installAUR wpgtk-git
+        installAUR gtk-theme-flat-color-git
         rm -rf ${HOME}/AURinstall
         # Install from pip
         installPIP wpgtk
