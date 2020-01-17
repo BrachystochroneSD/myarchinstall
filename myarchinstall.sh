@@ -192,6 +192,7 @@ installNC () {
 case $1 in
     --first) # to be launched first (duh)
         timedatectl set-ntp true
+	[[ -n "$2" ]] && disk="$2" || exit
         makingGRUBGPTPartitionTable
         installArch
         generateFSTab
@@ -229,7 +230,7 @@ case $1 in
         installAUR networkmanager-dmenu-git
         installAUR ttf-monofur
         installAUR mu
-	installAUR keepmenu
+	installAUR python-keepmenu-git
         rm -rf ${HOME}/AURinstall
         # Install from pip
         installPIP wpgtk
@@ -237,10 +238,7 @@ case $1 in
         installGIT st
         installGIT dmenu
         wpg -m
-	echo myarchinstall installed sucessfully (or not, because nothing tell if not)
-	echo Reboot ? (y/n)
-	read checkreboot
-	[[ $checkreboot = "y" ]] && reboot
+	echo "myarchinstall installed sucessfully"
         ;;
     *)
         printf "Need options\n     --first\n     --tworst\n     --thirst\n"
