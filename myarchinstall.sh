@@ -1,15 +1,5 @@
 #!/bin/sh
 
-# location of this file : https://raw.githubusercontent.com/BrachystochroneSD/myarchinstall/master/myarchinstall.sh
-
-# TODO LIST
-# ask for prompt shits first
-# mpd server config
-# create makefile for keepmenu
-# efi boot
-# add emacs.d colors.sh and offlineimaprc to the dotfiles
-# polybar battery config tweaks
-
 #########
 # FIRST #
 #########

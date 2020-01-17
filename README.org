@@ -1,3 +1,31 @@
 * MyArchInstall
+  My shell script to install my arch linux config on any device from scratch in three steps:
+  - First step:
+    - Create Grub partition table
+    - Install Arch linux with all of my packages
+    - Generate FSTab
+    - Setup Local and Timezone
+    - Setup Hostname
+  - Second Step:
+    - Install Grub
+    - Create root pass and new user
+  - Third Step:
+    - Install AUR packages
+    - Mount Zenocloud and get auth info from it
+    - Create SSH and send it to my git
 
-The name will change
+* Personnal shit
+   As you can see, this is for now a personnal script. It's not meant to be used by anyone, but you can if you want. And maybe I will make it universal and adaptative.
+
+   If you want to try it, just do a in arch usb boot installer:
+
+#+BEGIN_EXAMPLE
+curl -O https://raw.githubusercontent.com/BrachystochroneSD/myarchinstall/master/myarchinstall.sh
+#+END_EXAMPLE
+
+* TODO list
+  - Ask for prompt shits first
+  - mpd server config
+  - efi boot
+  - polybar battery config tweaks or script
+  - gpg key handling for authinfo
