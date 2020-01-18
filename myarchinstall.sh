@@ -223,11 +223,13 @@ case $1 in
         installAUR wpgtk-git
         installAUR gtk-theme-flat-color-git
         rm -rf ${HOME}/AURinstall
+        # vim plugings install
+        vim +'PlugInstall --sync' +qa
         # Install from my git
         installGIT st
         installGIT dmenu
         wpg -m
-	echo "myarchinstall installed sucessfully"
+	echo "Myarchinstall installed sucessfully"
         ;;
     *)
         printf "Need options\n     --first\n     --tworst\n     --thirst\n"

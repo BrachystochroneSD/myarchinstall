@@ -25,7 +25,6 @@ curl -O https://raw.githubusercontent.com/BrachystochroneSD/myarchinstall/master
 
 * TODO list
   - Ask for prompt shits first
-  - mpd server config
   - efi boot
   - polybar battery config tweaks or script
   - gpg key handling for authinfo
