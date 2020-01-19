@@ -68,7 +68,7 @@ makefilesystem () {
 installArch () {
     echo Installing arch linux and packages
     # TODO: Set up the complete list and sort it (it's a mess!)
-    pacstrap /mnt base base-devel linux linux-firmware i3-gaps grub vim zsh networkmanager git
+    pacstrap /mnt base base-devel linux linux-firmware grub vim zsh networkmanager git
 }
 
 generateFSTab () {
@@ -132,7 +132,7 @@ createUser () {
 }
 
 installmyshit () {
-    openssh xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip emacs picom fzf ttf-linux-libertine ttf-inconsolata redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd
+    sudo pacman -S openssh xorg-xinit xorg-server emacs python python-gobject man firefox w3m ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip emacs picom fzf ttf-linux-libertine ttf-inconsolata redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd i3-gaps
 }
 
 createssh () {
