@@ -16,8 +16,16 @@ createPartitionTable () {
     [[ -n $1 ]] && disk=$1 || abort "Need disk label"
     num=1
     echo "Creating partition table"
-    echo "label: gpt\nunit: sectors" > part_table
-    echo "/dev/$disk$num : size= +2M,        type=21686148-6449-6E6F-744E-656564454649" >> part_table && num=$(( num + 1 ))
+    echo -e "label: gpt\nunit: sectors" > part_table
+
+    #efi or legacy boot partition
+    [ ls /sys/firmware/efi/efivars/ ] && efip=1
+    if [ -n "$efip" ];then
+        echo "$disk$num :  size= +260M, name=\"boot\", type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B" >> part_table && num=$(( num + 1 ))
+        partboot="$disk$num"
+    else
+        echo "$disk$num : size= +2M,        type=21686148-6449-6E6F-744E-656564454649" >> part_table && num=$(( num + 1 ))
+    fi
 
     #swap or not
     echo "Do you want to create swap partition ? (y/n)"
@@ -33,41 +41,47 @@ createPartitionTable () {
         [[ -n $swapsizebis ]] && swapsize=$swapsizebis
         swapsize="$swapsize"G
         partswap="$disk$num"
-        echo "/dev/$disk$num : size= +$swapsize, type=0657FD6D-A4AB-43C4-84E5-0933C84B4F4F" >> part_table && num=$(( num + 1 ))
+        echo "$disk$num : size= +$swapsize, type=0657FD6D-A4AB-43C4-84E5-0933C84B4F4F" >> part_table && num=$(( num + 1 ))
     fi
 
     # Root partition
     partroot="$disk$num"
-    echo "/dev/$partroot : size= +25G,       type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709, attrs=\"LegacyBIOSBootable\"" >> part_table && num=$(( num + 1 ))
+    echo "$partroot : size= +25G,       type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709, attrs=\"LegacyBIOSBootable\"" >> part_table && num=$(( num + 1 ))
 
     # Home partition
     parthome="$disk$num"
-    echo "/dev/$parthome : type=933AC7E1-2EB4-4F13-B844-0E14E2AEF915" >> part_table
+    echo "$parthome : type=933AC7E1-2EB4-4F13-B844-0E14E2AEF915" >> part_table
 
     # format disk
-    sfdisk /dev/"$disk" < part_table || abort "sfdisk not completted"
+    sfdisk "$disk" < part_table || abort "sfdisk not completted"
     rm part_table
 }
 
 makefilesystem () {
-    echo making filesystem
-    mkfs.ext4 /dev/"$partroot"
-    mkfs.ext4 /dev/"$parthome"
+    echo "Making Filesystem for root and home"
+    mkfs.ext4 "$partroot"
+    mkfs.ext4 "$parthome"
 
-    if [ -n $swapsize ];then
-        echo making swappartition
-        mkswap /dev/"$partswap"
-        swapon /dev/"$partswap"
+    if [ -n "$swapsize" ];then
+        echo "Making Swap"
+        mkswap "$partswap"
+        swapon "$partswap"
     fi
 
-    mount /dev/"$partroot" /mnt
+    mount "$partroot" /mnt
     mkdir /mnt/home
-    mount /dev/"$parthome" /mnt/home
+    mount "$parthome" /mnt/home
+
+    #fat32 for efi and mount it
+    if [ -n "$efip" ];then
+        mkfs.fat -F32 "$partboot"
+        mount "$partboot" /mnt/boot
+    fi
+
 }
 
 installArch () {
     echo Installing arch linux and packages
-    # TODO: Set up the complete list and sort it (it's a mess!)
     pacstrap /mnt base base-devel linux linux-firmware grub vim zsh networkmanager git
 }
 
@@ -105,8 +119,8 @@ clockandlocale () {
 }
 
 installGrub () {
-    echo Installing Grub
-    grub-install --target=i386-pc /dev/"$disk"
+    [[ -n $1 ]] && disk=$1 || abort "Need disk label"
+    [[ -z "$disk" ]] && grub-install --target=i386-pc "$disk" || abort "Choose disk"
     echo creating config file
     sed -i 's/\(GRUB_GFXMODE=\)/\1640x480,/' /etc/default/grub
     grub-mkconfig -o /boot/grub/grub.cfg
@@ -187,6 +201,14 @@ installdotfiles () {
     /bin/git --git-dir="$dotgitdir" --work-tree="${HOME}" pull origin master
 }
 
+CreateWallpaper () {
+    size=$(xrandr | grep current | sed 's/.*current \([0-9]*\) x \([0-9]*\),.*/\1x\2/')
+    convert -size $size ${HOME}/wpg/mywalls/archowl.png -resize 200 -background black -gravity center -extent $size "${HOME}"/Images/wallpapers/archowlwall.png
+    sudo convert -resize 640x480\! "${HOME}"Images/wallpapers/archowlwallpng /boot/grub/grubwall.png
+    sed -i 's|#\(GRUB_BACKGROUND=\).*|\1\"/boot/grub/grubwall.png\"|' /etc/default/grub
+    grub-mkconfig -o /boot/grub/grub.cfg
+}
+
 installNC () {
     zenomount="${HOME}/zenocloud"
     zenodir="$1"
@@ -209,7 +231,7 @@ installNC () {
 case $1 in
     --first) # to be launched first (duh)
         timedatectl set-ntp true
-	[[ -z "$2" ]] && abort "Need disk label in option (--first disklabel)"
+	[[ -z "$2" ]] && abort "Need disk label in option (--first /dev/sdX)"
         createPartitionTable "$2"
         makefilesystem
         installArch
@@ -222,7 +244,8 @@ case $1 in
         ;;
     --tworst) # To be launched after the arch-chroot, in root
         clockandlocale
-        installGrub
+	[[ -z "$2" ]] && abort "Need disk label in option (--tworst /dev/sdX)"
+        installGrub "$2"
         systemctlConfig
         setupPassAndUser
         createUser
@@ -234,14 +257,14 @@ case $1 in
         # install from NC auth files
         installNC "authentificationfiles" "${HOME}/.authentification"
         installNC "keepassDBs" "${HOME}/.keepassdb"
-        # installNC "Images/wallpapers" "${HOME}/Images/wallpapers" # too long maybe need to do it manually if
-	sudo umount ${HOME}/zenocloud
+	sudo umount "${HOME}"/zenocloud
+        rm "${HOME}"/zenocloud
         createssh
         #install dotfiles first
         installdotfiles
 	# create main dir
 	mkdir "${HOME}"/Documents "${HOME}"/Images "${HOME}"/Images/wallpapers
-	cp "${HOME}"/.config/wpg/mywalls/png "${HOME}"/Images/wallpapers
+        CreateWallpaper
         # install from AUR
         installAUR polybar
         installAUR cava
@@ -252,7 +275,6 @@ case $1 in
 	installAUR python-keepmenu-git
         installAUR wpgtk-git
         installAUR gtk-theme-flat-color-git
-        rm -rf ${HOME}/AURinstall
         # vim plugings install
         vim +'PlugInstall --sync' +qa
         # Install from my git
