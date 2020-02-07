@@ -46,7 +46,12 @@ createPartitionTable () {
 
     # Root partition
     partroot="$disk$num"
-    echo "$partroot : size= +25G,       type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709, attrs=\"LegacyBIOSBootable\"" >> part_table && num=$(( num + 1 ))
+    if [ -n "$efip" ];then
+        rootline="$partroot : size= +30G,       type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709"
+    else
+        rootline="$partroot : size= +30G,       type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709, attrs=\"LegacyBIOSBootable\""
+    fi
+        echo "$rootline" >> part_table && num=$(( num + 1 ))
 
     # Home partition
     parthome="$disk$num"
