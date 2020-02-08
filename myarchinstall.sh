@@ -157,7 +157,7 @@ createUser () {
 }
 
 installmyshit () {
-    sudo pacman -S openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man firefox w3m ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip emacs picom fzf ttf-linux-libertine ttf-inconsolata redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd i3-gaps python-pykeepass
+    sudo pacman -S openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man firefox w3m ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip emacs picom fzf ttf-linux-libertine ttf-inconsolata redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd i3-gaps python-pykeepass numlockx
 }
 
 createssh () {
