@@ -19,7 +19,7 @@ createPartitionTable () {
     echo -e "label: gpt\nunit: sectors" > part_table
 
     #efi or legacy boot partition
-    [ ls /sys/firmware/efi/efivars/ ] && efip=1
+    [ -n "$(ls /sys/firmware/efi/efivars/)" ] && efip=1
     if [ -n "$efip" ];then
         echo "$disk$num :  size= +260M, name=\"boot\", type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B" >> part_table && num=$(( num + 1 ))
         partboot="$disk$num"
@@ -38,7 +38,7 @@ createPartitionTable () {
         swapsize=$(grep MemTotal /proc/meminfo | awk '{print int($2/1000000+0.5)*1.5}' | bc)
         echo "How many Go do you want ? (default $swapsize Go)"
         read swapsizebis
-        [ -n $swapsizebis ] && swapsize=$swapsizebis
+        [ -n "$swapsizebis" ] && swapsize=$swapsizebis
         swapsize="$swapsize"G
         partswap="$disk$num"
         echo "$disk$num : size= +$swapsize, type=0657FD6D-A4AB-43C4-84E5-0933C84B4F4F" >> part_table && num=$(( num + 1 ))
@@ -128,7 +128,7 @@ installGrub () {
 
     [ -n "$1" ] && disk=$1 || abort "Need disk label"
 
-    [ ls /sys/firmware/efi/efivars/ ] && efip=1
+    [ -n "$(ls /sys/firmware/efi/efivars/)" ] && efip=1
 
     if [ -n "$efip" ];then
         pacman -S efibootmgr
