@@ -20,9 +20,9 @@ createPartitionTable () {
     [ -n "$(ls /sys/firmware/efi/efivars/)" ] && efip=1
     if [ -n "$efip" ];then
         partboot="$disk$num"
-        echo "$disk$num :  size= +550M, name=\"boot\", type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B" >> part_table && num=$(( num + 1 ))
+        echo "$disk$num :  size= +550M, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B" >> part_table && num=$(( num + 1 ))
     else
-        echo "$disk$num : size= +2M,        type=21686148-6449-6E6F-744E-656564454649" >> part_table && num=$(( num + 1 ))
+        echo "$disk$num : size= +2M,    type=21686148-6449-6E6F-744E-656564454649" >> part_table && num=$(( num + 1 ))
     fi
 
     #swap or not
@@ -214,10 +214,10 @@ installdotfiles () {
 
 CreateWallpaper () {
     size=$(xrandr | grep current | sed 's/.*current \([0-9]*\) x \([0-9]*\),.*/\1x\2/')
-    convert -size $size ${HOME}/wpg/mywalls/archowl.png -resize 200 -background black -gravity center -extent $size "${HOME}"/Images/wallpapers/archowlwall.png
+    convert -size $size ${HOME}/.wpg/mywalls/owl.png -resize 200 -background black -gravity center -extent $size "${HOME}"/Images/wallpapers/archowlwall.png
     sudo convert -resize 640x480\! "${HOME}"Images/wallpapers/archowlwallpng /boot/grub/grubwall.png
-    sed -i 's|#\(GRUB_BACKGROUND=\).*|\1\"/boot/grub/grubwall.png\"|' /etc/default/grub
-    grub-mkconfig -o /boot/grub/grub.cfg
+    sudo sed -i 's|#\(GRUB_BACKGROUND=\).*|\1\"/boot/grub/grubwall.png\"|' /etc/default/grub
+    sudo grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 installNC () {
