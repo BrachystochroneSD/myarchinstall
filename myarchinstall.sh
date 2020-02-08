@@ -293,6 +293,7 @@ case $1 in
         installGIT st
         installGIT dmenu
         wpg -m
+	wpg --theme base16-gruvbox-hard
 	echo "Myarchinstall installed sucessfully"
         ;;
     *)
