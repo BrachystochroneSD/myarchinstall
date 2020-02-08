@@ -13,7 +13,7 @@ abort () {
 #########
 
 createPartitionTable () {
-    [[ -n $1 ]] && disk=$1 || abort "Need disk label"
+    [ -n "$1" ] && disk="$1" || abort "Need disk label"
     num=1
     echo "Creating partition table"
     echo -e "label: gpt\nunit: sectors" > part_table
@@ -38,7 +38,7 @@ createPartitionTable () {
         swapsize=$(grep MemTotal /proc/meminfo | awk '{print int($2/1000000+0.5)*1.5}' | bc)
         echo "How many Go do you want ? (default $swapsize Go)"
         read swapsizebis
-        [[ -n $swapsizebis ]] && swapsize=$swapsizebis
+        [ -n $swapsizebis ] && swapsize=$swapsizebis
         swapsize="$swapsize"G
         partswap="$disk$num"
         echo "$disk$num : size= +$swapsize, type=0657FD6D-A4AB-43C4-84E5-0933C84B4F4F" >> part_table && num=$(( num + 1 ))
@@ -80,7 +80,8 @@ makefilesystem () {
     #fat32 for efi and mount it
     if [ -n "$efip" ];then
         mkfs.fat -F32 "$partboot"
-        mount "$partboot" /mnt/boot
+        mkdir /mnt/efi
+        mount "$partboot" /mnt/efi
     fi
 
 }
@@ -124,10 +125,19 @@ clockandlocale () {
 }
 
 installGrub () {
-    [[ -n $1 ]] && disk=$1 || abort "Need disk label"
-    [[ -z "$disk" ]] && grub-install --target=i386-pc "$disk" || abort "Choose disk"
+
+    [ -n "$1" ] && disk=$1 || abort "Need disk label"
+
+    [ ls /sys/firmware/efi/efivars/ ] && efip=1
+
+    if [ -n "$efip" ];then
+        pacman -S efibootmgr
+        grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
+    else
+        grub-install --target=i386-pc "$disk"
+    fi
     echo creating config file
-    sed -i 's/\(GRUB_GFXMODE=\)/\1640x480,/' /etc/default/grub
+    # sed -i 's/\(GRUB_GFXMODE=\)/\1640x480,/' /etc/default/grub
     grub-mkconfig -o /boot/grub/grub.cfg
 }
 
@@ -168,8 +178,8 @@ createssh () {
 installGIT () {
     lastdir="$PWD"
     repo="$1"
-    [[ -n "$2" ]] && dir="$2" || dir="${HOME}/.config"
-    [[ -n "$3" ]] && user="$3" || user="BrachystochroneSD"
+    [ -n "$2" ] && dir="$2" || dir="${HOME}/.config"
+    [ -n "$3" ] && user="$3" || user="BrachystochroneSD"
 
     cd "$dir"
     git clone --depth 1 "git@github.com:$user/$repo.git"
@@ -226,7 +236,7 @@ installNC () {
     else
 	echo $zenomount already mounted
     fi
-    [[ ! -d "$zenomount/$zenodir" ]] && exit
+    [ ! -d "$zenomount/$zenodir" ] && exit
 
     echo copy
     sudo cp -rv "$zenomount"/"$zenodir"/* "$installdir"/
@@ -236,7 +246,7 @@ installNC () {
 case $1 in
     --first) # to be launched first (duh)
         timedatectl set-ntp true
-	[[ -z "$2" ]] && abort "Need disk label in option (--first /dev/sdX)"
+	[ -z "$2" ] && abort "Need disk label in option (--first /dev/sdX)"
         createPartitionTable "$2"
         makefilesystem
         installArch
@@ -249,7 +259,7 @@ case $1 in
         ;;
     --tworst) # To be launched after the arch-chroot, in root
         clockandlocale
-	[[ -z "$2" ]] && abort "Need disk label in option (--tworst /dev/sdX)"
+	[ -z "$2" ] && abort "Need disk label in option (--tworst /dev/sdX)"
         installGrub "$2"
         systemctlConfig
         setupPassAndUser

@@ -28,5 +28,6 @@ curl -O https://raw.githubusercontent.com/BrachystochroneSD/myarchinstall/master
   - efi boot
     * checkefi=$(ls /sys/firmware/efi/efivars/ | wc -l)
     * boottype="C12A7328-F81F-11D2-BA4B-00A0C93EC93B" efi boot ype
+  - grub install *before* chroot
   - polybar battery config tweaks or script
   - gpg key handling for authinfo
