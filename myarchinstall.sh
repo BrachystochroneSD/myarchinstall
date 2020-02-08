@@ -214,7 +214,7 @@ installdotfiles () {
 
 CreateWallpaper () {
     size=$(xrandr | grep current | sed 's/.*current \([0-9]*\) x \([0-9]*\),.*/\1x\2/')
-    convert -size $size ${HOME}/.wpg/mywalls/owl.png -resize 200 -background black -gravity center -extent $size "${HOME}"/Images/wallpapers/archowlwall.png
+    convert -size $size ${HOME}/.config/wpg/mywalls/owl.png -resize 200 -background black -gravity center -extent $size "${HOME}"/Images/wallpapers/archowlwall.png
     sudo convert -resize 640x480\! "${HOME}"Images/wallpapers/archowlwallpng /boot/grub/grubwall.png
     sudo sed -i 's|#\(GRUB_BACKGROUND=\).*|\1\"/boot/grub/grubwall.png\"|' /etc/default/grub
     sudo grub-mkconfig -o /boot/grub/grub.cfg
