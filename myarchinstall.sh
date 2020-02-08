@@ -2,8 +2,7 @@
 
 
 abort () {
-    error=$1
-    echo "Error: $1"
+    [ -n "$1" ] && echo "Error: $1"
     echo "Aborted"
     exit
 }
@@ -22,7 +21,7 @@ createPartitionTable () {
     [ -n "$(ls /sys/firmware/efi/efivars/)" ] && efip=1
     if [ -n "$efip" ];then
         partboot="$disk$num"
-        echo "$disk$num :  size= +260M, name=\"boot\", type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B" >> part_table && num=$(( num + 1 ))
+        echo "$disk$num :  size= +550M, name=\"boot\", type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B" >> part_table && num=$(( num + 1 ))
     else
         echo "$disk$num : size= +2M,        type=21686148-6449-6E6F-744E-656564454649" >> part_table && num=$(( num + 1 ))
     fi
@@ -46,12 +45,10 @@ createPartitionTable () {
 
     # Root partition
     partroot="$disk$num"
-    if [ -n "$efip" ];then
-        rootline="$partroot : size= +30G,       type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709"
-    else
-        rootline="$partroot : size= +30G,       type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709, attrs=\"LegacyBIOSBootable\""
-    fi
-        echo "$rootline" >> part_table && num=$(( num + 1 ))
+    rootline="$partroot : size= +30G,       type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709"
+    [ -z "$efip" ] && rootline="$rootline, attrs=\"LegacyBIOSBootable\""
+
+    echo "$rootline" >> part_table && num=$(( num + 1 ))
 
     # Home partition
     parthome="$disk$num"
