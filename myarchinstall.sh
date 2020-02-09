@@ -241,7 +241,7 @@ installNC () {
 # MAIN SHIT
 case $1 in
     --first) # to be launched first (duh)
-        timedatectl set-ntp true
+        timedatectl set-timezone Europe/Brussels
 	[ -z "$2" ] && abort "Need disk label in option (--first /dev/sdX)"
         createPartitionTable "$2"
         makefilesystem
