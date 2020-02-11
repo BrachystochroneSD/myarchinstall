@@ -198,7 +198,7 @@ installAUR () {
     cd "$aurdir"
     git clone "https://aur.archlinux.org/$1.git"
     cd "$1"
-    makepkg -si
+    makepkg -si --noconfirm
     cd "$lastdir"
 }
 
