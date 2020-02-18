@@ -101,9 +101,8 @@ setupLocalandTimeZone () {
 }
 
 setupHostname () {
-    echo Choose hostname:
-    read hostname
-    echo $hostname > /mnt/etc/hostname
+    [ -z "$1" ] && abort "Need hostname"
+    echo "$1" > /mnt/etc/hostname
     printf "192.168.0.102 www.zenocyne.com\n192.168.0.102 nextcloud.zenocyne.com\n" >> /mnt/etc/hosts
 }
 
@@ -118,6 +117,7 @@ changeRoot () {
 clockandlocale () {
     locale-gen
     hwclock --systohc
+    timedatectl set-timezone Europe/Brussels
 }
 
 installGrub () {
@@ -133,7 +133,7 @@ installGrub () {
         grub-install --target=i386-pc "$disk"
     fi
     echo creating config file
-    # sed -i 's/\(GRUB_GFXMODE=\)/\1640x480,/' /etc/default/grub
+    sed -i 's/\(GRUB_GFXMODE=\)/\111600x900,640x480,/' /etc/default/grub
     grub-mkconfig -o /boot/grub/grub.cfg
 }
 
@@ -157,7 +157,7 @@ createUser () {
 }
 
 installmyshit () {
-    sudo pacman -S openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man firefox w3m ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip emacs picom fzf ttf-linux-libertine ttf-inconsolata redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd i3-gaps python-pykeepass numlockx
+    sudo pacman -S --noconfirm openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man firefox w3m ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip emacs picom fzf ttf-linux-libertine ttf-inconsolata redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd i3-gaps python-pykeepass numlockx zsh-syntax-highlighting transmission-cli
 }
 
 createssh () {
@@ -167,6 +167,15 @@ createssh () {
     token=$(awk '($1=="sshadmin"){print $2}' "${HOME}/.authentification/tokengit" )
     json=$(printf '{"title": "%s", "key": "%s"}' "$title" "$sshkey" )
     curl -d "$json" -H "Authorization: token $token" https://api.github.com/user/keys
+}
+
+creategpg () {
+    mailauthfile="${HOME}/.authentification/mailauthinfo"
+
+    gpg --batch --passphrase '' --yes --quick-gen-key 'Samuel Dawant <samrenfou@hotmail.com>'
+    gpg -e --default-recipient-self "$mailauthfile"
+    mv "$mailauthfile" "${HOME}/.authinfo.gpg"
+    rm "$mailauthfile"
 }
 
 # Install Function GIT PIP and AUR
@@ -213,11 +222,12 @@ installdotfiles () {
 }
 
 CreateWallpaper () {
-    size=$(xrandr | grep current | sed 's/.*current \([0-9]*\) x \([0-9]*\),.*/\1x\2/')
+    # size=$(xrandr | grep current | sed 's/.*current \([0-9]*\) x \([0-9]*\),.*/\1x\2/')
+    size="1600x900"
     convert -size $size ${HOME}/.config/wpg/mywalls/owl.png -resize 200 -background black -gravity center -extent $size "${HOME}"/Images/wallpapers/archowlwall.png
-    sudo convert -resize 640x480\! "${HOME}"Images/wallpapers/archowlwallpng /boot/grub/grubwall.png
-    sudo sed -i 's|#\(GRUB_BACKGROUND=\).*|\1\"/boot/grub/grubwall.png\"|' /etc/default/grub
-    sudo grub-mkconfig -o /boot/grub/grub.cfg
+    # sudo convert -resize 640x480\! "${HOME}"Images/wallpapers/archowlwallpng /boot/grub/grubwall.png
+    # sudo sed -i 's|#\(GRUB_BACKGROUND=\).*|\1\"/boot/grub/grubwall.png\"|' /etc/default/grub
+    # sudo grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 installNC () {
@@ -230,7 +240,7 @@ installNC () {
     if ! grep -qs "$zenomount " "/proc/mounts";then
         sudo mount -t davfs https://nextcloud.zenocyne.com/remote.php/webdav/ "$zenomount" || exit
     else
-	echo $zenomount already mounted
+        echo $zenomount already mounted
     fi
     [ ! -d "$zenomount/$zenodir" ] && exit
 
@@ -240,22 +250,24 @@ installNC () {
 
 # MAIN SHIT
 case $1 in
-    --first) # to be launched first (duh)
+    --first) # to be launched first
+        echo Choose hostname:
+        read hostname
         timedatectl set-timezone Europe/Brussels
-	[ -z "$2" ] && abort "Need disk label in option (--first /dev/sdX)"
+        [ -z "$2" ] && abort "Need disk label in option (--first /dev/sdX)"
         createPartitionTable "$2"
         makefilesystem
         installArch
         generateFSTab
         setupLocalandTimeZone
-        setupHostname
+        setupHostname "$hostname"
         #copy the script in home
         cp myarchinstall.sh /mnt/home
         changeRoot
         ;;
     --tworst) # To be launched after the arch-chroot, in root
         clockandlocale
-	[ -z "$2" ] && abort "Need disk label in option (--tworst /dev/sdX)"
+        [ -z "$2" ] && abort "Need disk label in option (--tworst /dev/sdX)"
         installGrub "$2"
         systemctlConfig
         setupPassAndUser
@@ -265,36 +277,38 @@ case $1 in
         ;;
     --thirst) # to be launched with the user name
         installmyshit
-        # install from NC auth files
         installNC "authentificationfiles" "${HOME}/.authentification"
+        chmod -R 600 "${HOME}/.authentification"
         installNC "keepassDBs" "${HOME}/.keepassdb"
-	sudo umount "${HOME}"/zenocloud
-        rm "${HOME}"/zenocloud
+        sudo umount "${HOME}"/zenocloud
+        rmdir "${HOME}"/zenocloud
+        creategpg
         createssh
-        #install dotfiles first
         installdotfiles
-	# create main dir
-	mkdir "${HOME}"/Documents "${HOME}"/Images "${HOME}"/Images/wallpapers
+        # create main dir
+        mkdir "${HOME}"/Documents "${HOME}"/Images "${HOME}"/Images/wallpapers
         CreateWallpaper
         # install from AUR
         installAUR polybar
         installAUR cava
-	installAUR xwinwrap-git
+        installAUR xwinwrap-git
         installAUR networkmanager-dmenu-git
         installAUR ttf-monofur
         installAUR mu
-	installAUR python-pyuserinput-git
-	installAUR python-keepmenu-git
+        installAUR python-pyuserinput-git
+        installAUR python-keepmenu-git
         installAUR wpgtk-git
         installAUR gtk-theme-flat-color-git
+        installAUR tremc-git
+        sudo systemctl enable transmission.service
         # vim plugings install
         vim +'PlugInstall --sync' +qa
         # Install from my git
         installGIT st
         installGIT dmenu
         wpg -m
-	wpg --theme base16-gruvbox-hard
-	echo "Myarchinstall installed sucessfully"
+        wpg --theme base16-gruvbox-hard
+        echo "Myarchinstall installed sucessfully"
         ;;
     *)
         printf "Need options\n     --first\n     --tworst\n     --thirst\n"
