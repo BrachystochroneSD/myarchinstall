@@ -221,6 +221,12 @@ installdotfiles () {
     /bin/git --git-dir="$dotgitdir" --work-tree="${HOME}" pull origin master
 }
 
+rootlinks () {
+    ln -s /root/.vim /home/sam/.vim
+    ln -s /root/.vimrc /home/sam/.vimrc
+    ln -s /root/.zshrc /home/sam/.zshrc
+}
+
 CreateWallpaper () {
     # size=$(xrandr | grep current | sed 's/.*current \([0-9]*\) x \([0-9]*\),.*/\1x\2/')
     size="1600x900"
@@ -285,6 +291,7 @@ case $1 in
         creategpg
         createssh
         installdotfiles
+        rootlinks
         # create main dir
         mkdir "${HOME}"/Documents "${HOME}"/Images "${HOME}"/Images/wallpapers
         CreateWallpaper
