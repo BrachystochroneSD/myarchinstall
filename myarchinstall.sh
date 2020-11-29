@@ -157,7 +157,7 @@ createUser () {
 }
 
 installmyshit () {
-    sudo pacman -S --noconfirm openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip emacs picom fzf ttf-linux-libertine ttf-fira-code redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd i3-gaps python-pykeepass numlockx zsh-syntax-highlighting transmission-cli scrot
+    sudo pacman -S --noconfirm openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip emacs picom fzf ttf-linux-libertine ttf-fira-code redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd python-pykeepass numlockx zsh-syntax-highlighting transmission-cli scrot
 }
 
 createssh () {
@@ -315,6 +315,7 @@ case $1 in
         # Install from my git
         installGIT st
         installGIT dmenu
+        installGIT dwm
         wpg -m
         wpg --theme base16-gruvbox-hard
         echo "Myarchinstall installed sucessfully"
