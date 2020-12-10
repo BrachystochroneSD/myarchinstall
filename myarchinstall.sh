@@ -222,9 +222,9 @@ installdotfiles () {
 }
 
 rootlinks () {
-    ln -s /root/.vim /home/sam/.vim
-    ln -s /root/.vimrc /home/sam/.vimrc
-    ln -s /root/.zshrc /home/sam/.zshrc
+    ln -s /home/sam/.vim  /root/.vim
+    ln -s /home/sam/.vimrc  /root/.vimrc
+    ln -s /home/sam/.zshrc  /root/.zshrc
 }
 
 CreateWallpaper () {
@@ -257,10 +257,10 @@ installNC () {
 # MAIN SHIT
 case $1 in
     --first) # to be launched first
+        [ -z "$2" ] && abort "Need disk label in option (--first /dev/sdX)"
         echo Choose hostname:
         read hostname
         timedatectl set-timezone Europe/Brussels
-        [ -z "$2" ] && abort "Need disk label in option (--first /dev/sdX)"
         createPartitionTable "$2"
         makefilesystem
         installArch
@@ -272,8 +272,8 @@ case $1 in
         changeRoot
         ;;
     --tworst) # To be launched after the arch-chroot, in root
-        clockandlocale
         [ -z "$2" ] && abort "Need disk label in option (--tworst /dev/sdX)"
+        clockandlocale
         installGrub "$2"
         systemctlConfig
         setupPassAndUser
@@ -284,7 +284,6 @@ case $1 in
     --thirst) # to be launched with the user name
         installmyshit
         installNC "authentificationfiles" "${HOME}/.authentification"
-        chmod -R 600 "${HOME}/.authentification"
         installNC "keepassDBs" "${HOME}/.keepassdb"
         sudo umount "${HOME}"/zenocloud
         rmdir "${HOME}"/zenocloud
@@ -297,7 +296,7 @@ case $1 in
         CreateWallpaper
         # install from AUR
         installAUR brave-bin
-        installAUR polybar
+        installAUR polybar-dwm-module
         installAUR cava
         installAUR xwinwrap-git
         installAUR networkmanager-dmenu-git
