@@ -157,7 +157,7 @@ createUser () {
 }
 
 installmyshit () {
-    sudo pacman -S --noconfirm openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip emacs picom fzf ttf-linux-libertine ttf-fira-code redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd python-pykeepass numlockx zsh-syntax-highlighting transmission-cli scrot
+    sudo pacman -S --noconfirm openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip emacs picom fzf ttf-linux-libertine ttf-fira-code redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd python-pykeepass numlockx zsh-syntax-highlighting transmission-cli scrot pulseaudio
 }
 
 createssh () {
@@ -310,7 +310,8 @@ case $1 in
         installAUR ttf-monofur
         installAUR mu
         installAUR python-ueberzug-git
-        installAUR python-pyuserinput-git
+        installAUR python-setuptools-lint
+        installAUR python-pynput
         installAUR python-keepmenu-git
         installAUR wpgtk-git
         installAUR gtk-theme-flat-color-git
