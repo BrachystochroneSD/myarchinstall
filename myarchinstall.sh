@@ -254,6 +254,13 @@ installNC () {
     sudo cp -rv "$zenomount"/"$zenodir"/* "$installdir"/
 }
 
+mailshit () {
+    maildir="${HOME}/.mail"
+    mkdir -p "$maildir"
+    mu init --maildir="$maildir"
+    mu index
+}
+
 # MAIN SHIT
 case $1 in
     --first) # to be launched first
@@ -315,6 +322,7 @@ case $1 in
         installGIT st
         installGIT dmenu
         installGIT dwm
+        mailshit
         wpg -m
         wpg --theme base16-gruvbox-hard
         echo "Myarchinstall installed sucessfully"
