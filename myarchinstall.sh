@@ -172,10 +172,10 @@ createssh () {
 creategpg () {
     mailauthfile="${HOME}/.authentification/mailauthinfo"
 
-    gpg --batch --passphrase '' --yes --quick-gen-key 'Samuel Dawant <samrenfou@hotmail.com>'
+    gpg --batch --passphrase '' --yes --quick-gen-key 'Samuel Dawant <samueld@mailo.com>'
     gpg -e --default-recipient-self "$mailauthfile"
-    mv "$mailauthfile" "${HOME}/.authinfo.gpg"
-    rm "$mailauthfile"
+    mv "$mailauthfile".gpg "${HOME}/.authinfo.gpg"
+    rm "$mailauthfile".gpg
 }
 
 # Install Function GIT PIP and AUR
