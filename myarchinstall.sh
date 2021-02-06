@@ -103,7 +103,6 @@ setupLocalandTimeZone () {
 setupHostname () {
     [ -z "$1" ] && abort "Need hostname"
     echo "$1" > /mnt/etc/hostname
-    printf "192.168.0.102 www.zenocyne.com\n192.168.0.102 nextcloud.zenocyne.com\n" >> /mnt/etc/hosts
 }
 
 changeRoot () {
