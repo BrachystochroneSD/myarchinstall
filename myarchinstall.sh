@@ -171,10 +171,10 @@ createssh () {
 creategpg () {
     mailauthfile="${HOME}/.authentification/mailauthinfo"
 
-    gpg --batch --passphrase '' --yes --quick-gen-key 'Samuel Dawant <samrenfou@hotmail.com>'
+    gpg --batch --passphrase '' --yes --quick-gen-key 'Samuel Dawant <samueld@mailo.com>'
     gpg -e --default-recipient-self "$mailauthfile"
-    mv "$mailauthfile" "${HOME}/.authinfo.gpg"
-    rm "$mailauthfile"
+    mv "$mailauthfile".gpg "${HOME}/.authinfo.gpg"
+    rm "$mailauthfile".gpg
 }
 
 # Install Function GIT PIP and AUR
@@ -221,9 +221,9 @@ installdotfiles () {
 }
 
 rootlinks () {
-    ln -s /root/.vim /home/sam/.vim
-    ln -s /root/.vimrc /home/sam/.vimrc
-    ln -s /root/.zshrc /home/sam/.zshrc
+    ln -s /home/sam/.vim  /root/.vim
+    ln -s /home/sam/.vimrc  /root/.vimrc
+    ln -s /home/sam/.zshrc  /root/.zshrc
 }
 
 CreateWallpaper () {
@@ -253,13 +253,20 @@ installNC () {
     sudo cp -rv "$zenomount"/"$zenodir"/* "$installdir"/
 }
 
+mailshit () {
+    maildir="${HOME}/.mail"
+    mkdir -p "$maildir"
+    mu init --maildir="$maildir"
+    mu index
+}
+
 # MAIN SHIT
 case $1 in
     --first) # to be launched first
+        [ -z "$2" ] && abort "Need disk label in option (--first /dev/sdX)"
         echo Choose hostname:
         read hostname
         timedatectl set-timezone Europe/Brussels
-        [ -z "$2" ] && abort "Need disk label in option (--first /dev/sdX)"
         createPartitionTable "$2"
         makefilesystem
         installArch
@@ -271,8 +278,8 @@ case $1 in
         changeRoot
         ;;
     --tworst) # To be launched after the arch-chroot, in root
-        clockandlocale
         [ -z "$2" ] && abort "Need disk label in option (--tworst /dev/sdX)"
+        clockandlocale
         installGrub "$2"
         systemctlConfig
         setupPassAndUser
@@ -283,7 +290,6 @@ case $1 in
     --thirst) # to be launched with the user name
         installmyshit
         installNC "authentificationfiles" "${HOME}/.authentification"
-        chmod -R 600 "${HOME}/.authentification"
         installNC "keepassDBs" "${HOME}/.keepassdb"
         sudo umount "${HOME}"/zenocloud
         rmdir "${HOME}"/zenocloud
@@ -296,14 +302,15 @@ case $1 in
         CreateWallpaper
         # install from AUR
         installAUR brave-bin
-        installAUR polybar
+        installAUR polybar-dwm-module
         installAUR cava
         installAUR xwinwrap-git
         installAUR networkmanager-dmenu-git
         installAUR ttf-monofur
         installAUR mu
         installAUR python-ueberzug-git
-        installAUR python-pyuserinput-git
+        installAUR python-setuptools-lint
+        installAUR python-pynput
         installAUR python-keepmenu-git
         installAUR wpgtk-git
         installAUR gtk-theme-flat-color-git
@@ -315,6 +322,7 @@ case $1 in
         installGIT st
         installGIT dmenu
         installGIT dwm
+        mailshit
         wpg -m
         wpg --theme base16-gruvbox-hard
         echo "Myarchinstall installed sucessfully"
