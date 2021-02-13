@@ -103,7 +103,6 @@ setupLocalandTimeZone () {
 setupHostname () {
     [ -z "$1" ] && abort "Need hostname"
     echo "$1" > /mnt/etc/hostname
-    printf "192.168.0.102 www.zenocyne.com\n192.168.0.102 nextcloud.zenocyne.com\n" >> /mnt/etc/hosts
 }
 
 changeRoot () {
@@ -157,7 +156,11 @@ createUser () {
 }
 
 installmyshit () {
+<<<<<<< HEAD
     sudo pacman -S --noconfirm openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip emacs picom fzf ttf-linux-libertine ttf-fira-code redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd python-pykeepass numlockx zsh-syntax-highlighting transmission-cli scrot pulseaudio calcurse nm-connection-editor
+=======
+    sudo pacman -S --noconfirmopenssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh python-pip picom fzf ttf-linux-libertine ttf-fira-code redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd python-pykeepass numlockx zsh-syntax-highlighting transmission-cli scrot
+>>>>>>> 415912bafb82c534bf0be9a3b93cede6204eebf9
 }
 
 createssh () {
