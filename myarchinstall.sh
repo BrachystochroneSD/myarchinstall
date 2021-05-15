@@ -155,12 +155,14 @@ createUser () {
     passwd sam
 }
 
+addZenorepo () {
+    echo '[zenoaur]
+SigLevel = Optional TrustAll
+Server = https://aur.zenocyne.com/' >> /etc/pacman.conf
+}
+
 installmyshit () {
-<<<<<<< HEAD
-    sudo pacman -S --noconfirm openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip emacs picom fzf ttf-linux-libertine ttf-fira-code redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd python-pykeepass numlockx zsh-syntax-highlighting transmission-cli scrot pulseaudio calcurse nm-connection-editor
-=======
-    sudo pacman -S --noconfirmopenssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh python-pip picom fzf ttf-linux-libertine ttf-fira-code redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd python-pykeepass numlockx zsh-syntax-highlighting transmission-cli scrot
->>>>>>> 415912bafb82c534bf0be9a3b93cede6204eebf9
+    sudo pacman -S --noconfirm openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip picom ttf-linux-libertine ttf-fira-code redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd python-pykeepass numlockx zsh-syntax-highlighting transmission-cli scrot pulseaudio calcurse nm-connection-editor ueberzug brave-bin mu networkmanager-dmenu-git python-pynput wpgtk-git tremc-git
 }
 
 createssh () {
@@ -288,6 +290,7 @@ case $1 in
         systemctlConfig
         setupPassAndUser
         createUser
+        addZenorepo
         # move the script in home of sam
         mv /home/myarchinstall.sh /home/sam/
         ;;
@@ -305,20 +308,13 @@ case $1 in
         mkdir "${HOME}"/Documents "${HOME}"/Images "${HOME}"/Images/wallpapers
         CreateWallpaper
         # install from AUR
-        installAUR brave-bin
         installAUR polybar-dwm-module
         installAUR cava
         installAUR xwinwrap-git
-        installAUR networkmanager-dmenu-git
         installAUR ttf-monofur
-        installAUR mu
-        installAUR python-ueberzug-git
         installAUR python-setuptools-lint
-        installAUR python-pynput
         installAUR python-keepmenu-git
-        installAUR wpgtk-git
         installAUR gtk-theme-flat-color-git
-        installAUR tremc-git
         sudo systemctl enable transmission.service
         # vim plugings install
         vim +'PlugInstall --sync' +qa
