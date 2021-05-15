@@ -162,7 +162,7 @@ Server = https://aur.zenocyne.com/' >> /etc/pacman.conf
 }
 
 installmyshit () {
-    sudo pacman -S --noconfirm openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip picom ttf-linux-libertine ttf-fira-code redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd python-pykeepass numlockx zsh-syntax-highlighting transmission-cli scrot pulseaudio calcurse nm-connection-editor ueberzug brave-bin mu networkmanager-dmenu-git python-pynput wpgtk-git tremc-git
+    sudo pacman -S --noconfirm openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip picom ttf-linux-libertine ttf-fira-code redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd python-pykeepass numlockx zsh-syntax-highlighting transmission-cli scrot pulseaudio calcurse nm-connection-editor ueberzug brave-bin mu networkmanager-dmenu-git python-pynput wpgtk-git tremc-git cava python-keepmenu-git python-setuptools-lint ttf-monofur
 }
 
 createssh () {
@@ -309,11 +309,7 @@ case $1 in
         CreateWallpaper
         # install from AUR
         installAUR polybar-dwm-module
-        installAUR cava
         installAUR xwinwrap-git
-        installAUR ttf-monofur
-        installAUR python-setuptools-lint
-        installAUR python-keepmenu-git
         installAUR gtk-theme-flat-color-git
         sudo systemctl enable transmission.service
         # vim plugings install
