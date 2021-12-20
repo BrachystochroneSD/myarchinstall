@@ -91,7 +91,7 @@ makefilesystem () {
 
 installArch () {
     echo Installing arch linux and packages
-    pacstrap /mnt base linux linux-firmware grub vim zsh networkmanager git
+    pacstrap /mnt base linux linux-firmware grub vim zsh networkmanager git sudo
 }
 
 generateFSTab () {
