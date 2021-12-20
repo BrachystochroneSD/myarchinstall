@@ -18,10 +18,12 @@ createPartitionTable () {
 
     #efi or legacy boot partition
     [ -n "$(ls /sys/firmware/efi/efivars/)" ] && efip=1
-    if [ -n "$efip" ];then
+    if [ -n "$efip" -a ! "$2" = "noefi" ];then
+        echo create efi partition
         partboot="$disk$num"
         echo "$disk$num :  size= +550M, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B" >> part_table && num=$(( num + 1 ))
     else
+        echo create mbr partition
         echo "$disk$num : size= +2M,    type=21686148-6449-6E6F-744E-656564454649" >> part_table && num=$(( num + 1 ))
     fi
 
@@ -44,7 +46,12 @@ createPartitionTable () {
 
     # Root partition
     partroot="$disk$num"
-    rootline="$partroot : size= +30G,       type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709"
+    rootsize=30
+    echo "How many Go do you want ? (default $rootsize Go)"
+    read rootsizebis
+    [ -n "$rootsizebis" ] && rootsize=$rootsizebis
+    rootsize="$rootsize"G
+    rootline="$partroot : size= +$rootsize,       type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709"
     [ -z "$efip" ] && rootline="$rootline, attrs=\"LegacyBIOSBootable\""
 
     echo "$rootline" >> part_table && num=$(( num + 1 ))
@@ -84,7 +91,7 @@ makefilesystem () {
 
 installArch () {
     echo Installing arch linux and packages
-    pacstrap /mnt base base-devel linux linux-firmware grub vim zsh networkmanager git
+    pacstrap /mnt base linux linux-firmware grub vim zsh networkmanager git
 }
 
 generateFSTab () {
@@ -155,8 +162,14 @@ createUser () {
     passwd sam
 }
 
+addZenorepo () {
+    echo '[zenoaur]
+SigLevel = Optional TrustAll
+Server = https://aur.zenocyne.com/' >> /etc/pacman.conf
+}
+
 installmyshit () {
-    sudo pacman -S --noconfirm openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip emacs picom fzf ttf-linux-libertine ttf-fira-code redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd python-pykeepass numlockx zsh-syntax-highlighting transmission-cli scrot pulseaudio calcurse nm-connection-editor
+    sudo pacman -S --noconfirm openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip picom ttf-linux-libertine ttf-fira-code redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd python-pykeepass numlockx zsh-syntax-highlighting transmission-cli scrot pulseaudio calcurse nm-connection-editor ueberzug brave-bin mu networkmanager-dmenu-git python-pynput wpgtk-git tremc-git cava python-keepmenu-git python-setuptools-lint ttf-monofur
 }
 
 createssh () {
@@ -267,7 +280,7 @@ case $1 in
         echo Choose hostname:
         read hostname
         timedatectl set-timezone Europe/Brussels
-        createPartitionTable "$2"
+        createPartitionTable "$2" "$3"
         makefilesystem
         installArch
         generateFSTab
@@ -284,6 +297,7 @@ case $1 in
         systemctlConfig
         setupPassAndUser
         createUser
+        addZenorepo
         # move the script in home of sam
         mv /home/myarchinstall.sh /home/sam/
         ;;
@@ -301,20 +315,9 @@ case $1 in
         mkdir "${HOME}"/Documents "${HOME}"/Images "${HOME}"/Images/wallpapers
         CreateWallpaper
         # install from AUR
-        installAUR brave-bin
         installAUR polybar-dwm-module
-        installAUR cava
         installAUR xwinwrap-git
-        installAUR networkmanager-dmenu-git
-        installAUR ttf-monofur
-        installAUR mu
-        installAUR python-ueberzug-git
-        installAUR python-setuptools-lint
-        installAUR python-pynput
-        installAUR python-keepmenu-git
-        installAUR wpgtk-git
         installAUR gtk-theme-flat-color-git
-        installAUR tremc-git
         sudo systemctl enable transmission.service
         # vim plugings install
         vim +'PlugInstall --sync' +qa
