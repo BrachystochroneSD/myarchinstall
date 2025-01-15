@@ -12,7 +12,11 @@ abort () {
 
 createPartitionTable () {
     [ -n "$1" ] && disk="$1" || abort "Need disk label"
-    [ "$disk" = "/dev/nvme0n1" ] && disk="${disk}p" # DIRTY WORKAROUND
+    if [ "$disk" = "/dev/nvme0n1" ]; then
+        partbase="${disk}p" # DIRTY WORKAROUND
+    else
+        partbase="${disk}"
+    fi
     num=1
     echo "Creating partition table"
     echo -e "label: gpt\nunit: sectors" > part_table
@@ -21,11 +25,11 @@ createPartitionTable () {
     [ -n "$(ls /sys/firmware/efi/efivars/)" ] && efip=1
     if [ -n "$efip" -a ! "$2" = "noefi" ];then
         echo create efi partition
-        partboot="$disk$num"
-        echo "$disk$num : size= +550M, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B" >> part_table && num=$(( num + 1 ))
+        partboot="$partbase$num"
+        echo "$partbase$num : size= +550M, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B" >> part_table && num=$(( num + 1 ))
     else
         echo create mbr partition
-        echo "$disk$num : size= +2M, type=21686148-6449-6E6F-744E-656564454649" >> part_table && num=$(( num + 1 ))
+        echo "$partbase$num : size= +2M, type=21686148-6449-6E6F-744E-656564454649" >> part_table && num=$(( num + 1 ))
     fi
 
     #swap or not
@@ -41,12 +45,12 @@ createPartitionTable () {
         read swapsizebis
         [ -n "$swapsizebis" ] && swapsize=$swapsizebis
         swapsize="$swapsize"G
-        partswap="$disk$num"
-        echo "$disk$num : size= +$swapsize, type=0657FD6D-A4AB-43C4-84E5-0933C84B4F4F" >> part_table && num=$(( num + 1 ))
+        partswap="$partbase$num"
+        echo "$partbase$num : size= +$swapsize, type=0657FD6D-A4AB-43C4-84E5-0933C84B4F4F" >> part_table && num=$(( num + 1 ))
     fi
 
     # Root partition
-    partroot="$disk$num"
+    partroot="$partbase$num"
     rootsize=30
     echo "How many Go do you want for root ? (default $rootsize Go)"
     read rootsizebis
@@ -58,7 +62,7 @@ createPartitionTable () {
     echo "$rootline" >> part_table && num=$(( num + 1 ))
 
     # Var partition
-    partvar="$disk$num"
+    partvar="$partbase$num"
     varsize=15
     echo "How many Go do you want for var ? (default $varsize Go) (skip skip)"
     read varsizebis
@@ -66,14 +70,14 @@ createPartitionTable () {
     if [ "$varsize" == "skip" ]; then
         echo "Skipping var partition"
     else
-        partvar="$disk$num"
+        partvar="$partbase$num"
         varsize="$varsize"G
         varline="$partvar : size= +$varsize, type=4D21B016-B534-45C2-A9FB-5C16E091FD2D"
         echo "$varline" >> part_table && num=$(( num + 1 ))
     fi
 
     # Home partition
-    parthome="$disk$num"
+    parthome="$partbase$num"
     echo "$parthome : type=933AC7E1-2EB4-4F13-B844-0E14E2AEF915" >> part_table
 
     # Confirm
