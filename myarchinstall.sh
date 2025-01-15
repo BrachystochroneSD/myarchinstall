@@ -56,6 +56,21 @@ createPartitionTable () {
 
     echo "$rootline" >> part_table && num=$(( num + 1 ))
 
+    # Var partition
+    partvar="$disk$num"
+    varsize=15
+    echo "How many Go do you want for var ? (default $varsize Go) (skip skip)"
+    read varsizebis
+    [ -n "$varsizebis" ] && varsize=$varsizebis
+    if [ "$varsize" != "skip" ]; then
+        echo "Skipping var partition"
+    else
+        partvar="$disk$num"
+        varsize="$varsize"G
+        varline="$partvar : size= +$varsize, type=4D21B016-B534-45C2-A9FB-5C16E091FD2D"
+        echo "$varline" >> part_table && num=$(( num + 1 ))
+    fi
+
     # Home partition
     parthome="$disk$num"
     echo "$parthome : type=933AC7E1-2EB4-4F13-B844-0E14E2AEF915" >> part_table
@@ -79,6 +94,13 @@ makefilesystem () {
     mount "$partroot" /mnt
     mkdir /mnt/home
     mount "$parthome" /mnt/home
+
+    # var part
+    if [ -n "$partvar" ]; then
+        mkdir /mnt/var
+        mkfs.ext4 "$partvar"
+        mount "$partvar" /mnt/var
+    fi
 
     #fat32 for efi and mount it
     if [ -n "$efip" ];then
