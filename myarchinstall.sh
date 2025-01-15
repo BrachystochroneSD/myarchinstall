@@ -12,6 +12,7 @@ abort () {
 
 createPartitionTable () {
     [ -n "$1" ] && disk="$1" || abort "Need disk label"
+    [ "$disk" = "nvme0n1" ] && disk="${disk}p" # DIRTY WORKAROUND
     num=1
     echo "Creating partition table"
     echo -e "label: gpt\nunit: sectors" > part_table
