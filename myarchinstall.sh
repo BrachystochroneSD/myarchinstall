@@ -76,6 +76,16 @@ createPartitionTable () {
     parthome="$disk$num"
     echo "$parthome : type=933AC7E1-2EB4-4F13-B844-0E14E2AEF915" >> part_table
 
+    # Confirm
+    cat part_table
+    echo "Confirm partition table? (y/n)"
+    read confyn
+    until [ "$confyn" = "y" -o "$confyn" = "n" ];do
+        echo Please answer y or n
+        read confyn
+    done
+    [ $confyn = "n" ] && abort "Aborted"
+
     # format disk
     sfdisk "$disk" < part_table || abort "sfdisk not completted"
     rm part_table
