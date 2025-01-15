@@ -63,7 +63,7 @@ createPartitionTable () {
     echo "How many Go do you want for var ? (default $varsize Go) (skip skip)"
     read varsizebis
     [ -n "$varsizebis" ] && varsize=$varsizebis
-    if [ "$varsize" != "skip" ]; then
+    if [ "$varsize" == "skip" ]; then
         echo "Skipping var partition"
     else
         partvar="$disk$num"
@@ -201,8 +201,8 @@ SigLevel = Optional TrustAll
 Server = https://aur.zenocyne.com/' >> /etc/pacman.conf
 }
 
-installmyshit () {
-    sudo pacman -S --noconfirm openssh xorg-xinit xorg-server xorg-xrandr emacs python python-gobject man ncmpcpp mpd mpv youtube-dl mpc alsa-utils pavucontrol dunst libnotify unzip bc xclip imagemagick feh fzf python-pip picom ttf-linux-libertine ttf-fira-code redshift jq offlineimap davfs2 xdotool arc-gtk-theme xsettingsd python-pykeepass numlockx zsh-syntax-highlighting transmission-cli scrot pulseaudio calcurse nm-connection-editor ueberzug brave-bin mu networkmanager-dmenu-git python-pynput wpgtk-git tremc-git cava python-keepmenu-git python-setuptools-lint ttf-monofur
+installmyshit_base () {
+    sudo pacman -S --noconfirm openssh emacs python zsh zsh-syntax-highlighting man ncmpcpp mpd mpv mpc dunst fzf ttf-linux-libertine ttf-fira-code jq offlineimap arc-gtk-theme numlockx ueberzug mu networkmanager networkmanager-dmenu-git
 }
 
 createssh () {
@@ -335,7 +335,7 @@ case $1 in
         mv /home/myarchinstall.sh /home/sam/
         ;;
     --thirst) # to be launched with the user name
-        installmyshit
+        installmyshit_base
         installNC "authentificationfiles" "${HOME}/.authentification"
         installNC "keepassDBs" "${HOME}/.keepassdb"
         sudo umount "${HOME}"/zenocloud
