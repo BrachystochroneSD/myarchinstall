@@ -48,11 +48,11 @@ createPartitionTable () {
     # Root partition
     partroot="$disk$num"
     rootsize=30
-    echo "How many Go do you want ? (default $rootsize Go)"
+    echo "How many Go do you want for root ? (default $rootsize Go)"
     read rootsizebis
     [ -n "$rootsizebis" ] && rootsize=$rootsizebis
     rootsize="$rootsize"G
-    rootline="$partroot : size= +$rootsize,       type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709"
+    rootline="$partroot : size= +$rootsize, type=4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709"
     [ -z "$efip" ] && rootline="$rootline, attrs=\"LegacyBIOSBootable\""
 
     echo "$rootline" >> part_table && num=$(( num + 1 ))
