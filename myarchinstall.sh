@@ -12,7 +12,7 @@ abort () {
 
 createPartitionTable () {
     [ -n "$1" ] && disk="$1" || abort "Need disk label"
-    [ "$disk" = "nvme0n1" ] && disk="${disk}p" # DIRTY WORKAROUND
+    [ "$disk" = "/dev/nvme0n1" ] && disk="${disk}p" # DIRTY WORKAROUND
     num=1
     echo "Creating partition table"
     echo -e "label: gpt\nunit: sectors" > part_table
@@ -22,10 +22,10 @@ createPartitionTable () {
     if [ -n "$efip" -a ! "$2" = "noefi" ];then
         echo create efi partition
         partboot="$disk$num"
-        echo "$disk$num :  size= +550M, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B" >> part_table && num=$(( num + 1 ))
+        echo "$disk$num : size= +550M, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B" >> part_table && num=$(( num + 1 ))
     else
         echo create mbr partition
-        echo "$disk$num : size= +2M,    type=21686148-6449-6E6F-744E-656564454649" >> part_table && num=$(( num + 1 ))
+        echo "$disk$num : size= +2M, type=21686148-6449-6E6F-744E-656564454649" >> part_table && num=$(( num + 1 ))
     fi
 
     #swap or not
